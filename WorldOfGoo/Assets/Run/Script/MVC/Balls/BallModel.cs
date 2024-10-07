@@ -1,18 +1,23 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Numerics;
 
-public class BallModel : MonoBehaviour
+public class BallModel
 {
-    // Start is called before the first frame update
-    void Start()
+    public Vector2 Position { get; set; }
+    public Vector2 Velocity { get; set; }
+    public float Mass { get; set; }
+    public List<SpringModel> Connections { get; set; }
+
+    public BallModel(Vector2 position, float mass)
     {
-        
+        Position = position;
+        Mass = mass;
+        Velocity = Vector2.Zero;
+        Connections = new();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void AddConnection(SpringModel spring)
     {
-        
+        Connections.Add(spring);
     }
 }

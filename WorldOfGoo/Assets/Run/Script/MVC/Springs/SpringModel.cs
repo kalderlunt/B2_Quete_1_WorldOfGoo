@@ -1,18 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class SpringModel : MonoBehaviour
+public class SpringModel
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public BallModel BallA { get; }
+    public BallModel BallB { get; }
+    public float NaturalLength { get; } // longueur naturelle a l'etat repos
 
-    // Update is called once per frame
-    void Update()
+    public SpringModel(BallModel ballA, BallModel ballB, float naturalLength)
     {
-        
+        BallA = ballA;
+        BallB = ballB;
+        NaturalLength = naturalLength;
     }
 }
