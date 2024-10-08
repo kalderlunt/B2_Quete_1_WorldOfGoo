@@ -1,18 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BallView : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private BallModel model;
+    public SpriteRenderer spriteRenderer;
+
+    private BallView(BallModel model, SpriteRenderer spriteRenderer)
     {
-        
+        this.model = model;
+        this.spriteRenderer = spriteRenderer;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void UpdateView()
     {
-        
+        transform.position = model.Position;
     }
 }

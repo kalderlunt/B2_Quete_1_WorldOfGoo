@@ -1,5 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
-using System.Numerics;
+using UnityEngine;
 
 public class BallModel
 {
@@ -12,7 +13,7 @@ public class BallModel
     {
         Position = position;
         Mass = mass;
-        Velocity = Vector2.Zero;
+        Velocity = Vector2.zero;
         Connections = new();
     }
 

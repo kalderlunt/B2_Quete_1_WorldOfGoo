@@ -1,18 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SpringView : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public readonly SpringModel model;
+    public readonly LineRenderer lineRenderer;
+
+    private SpringView(SpringModel model, LineRenderer lineRenderer)
     {
-        
+        this.model = model;
+        this.lineRenderer = lineRenderer;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void UpdateView()
     {
-        
+        lineRenderer.SetPosition(0, model.BallA.Position);
+        lineRenderer.SetPosition(1, model.BallB.Position);
     }
 }
