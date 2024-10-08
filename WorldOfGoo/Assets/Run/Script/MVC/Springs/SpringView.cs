@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class SpringView : MonoBehaviour
 {
-    public readonly SpringModel model;
-    public readonly LineRenderer lineRenderer;
+    private SpringModel model;
+    private LineRenderer lineRenderer;
 
-    private SpringView(SpringModel model, LineRenderer lineRenderer)
+    public void Initialize(SpringModel model, LineRenderer lineRenderer)
     {
         this.model = model;
         this.lineRenderer = lineRenderer;

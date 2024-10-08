@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpringController : MonoBehaviour
+public class SpringController
 {
     private SpringModel model;
     private SpringView view;
 
-    private SpringController(SpringModel model, SpringView view)
+    public SpringController(SpringModel model, SpringView view)
     {
         this.model = model;
         this.view = view;
@@ -27,7 +27,7 @@ public class SpringController : MonoBehaviour
         float stretch = currentLength - model.NaturalLength;
 
         // Calcul de la force du ressort
-        Vector2 force = direction.normalized * stretch * 0.5f; // 0.5f constante de ressort
+        Vector2 force = direction.normalized * stretch * 0.2f; // 0.5f constante de ressort
 
         // Applique la force sur les deux boules connectées
         model.BallA.Velocity += force / model.BallA.Mass;

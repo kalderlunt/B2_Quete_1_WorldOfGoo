@@ -1,13 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class BallController : MonoBehaviour
+public class BallController
 {
     private BallModel model;
     private BallView view;
 
-    private BallController(BallModel model, BallView view)
+    public BallController(BallModel model, BallView view)
     {
         this.model = model;
         this.view = view;
@@ -21,23 +17,23 @@ public class BallController : MonoBehaviour
 
     private void UpdatePhysics()
     {
-        model.Velocity += Physics2D.gravity * Time.deltaTime;
+        model.Velocity += UnityEngine.Physics2D.gravity * UnityEngine.Time.deltaTime;
         
         foreach (SpringModel spring in model.Connections)
         {
             ApplySpringForce(spring);
         }
 
-        model.Position += model.Velocity * Time.deltaTime;
+        model.Position += model.Velocity * UnityEngine.Time.deltaTime;
     }
 
     private void ApplySpringForce(SpringModel spring)
     {
-        Vector2 direction = spring.BallB.Position - spring.BallA.Position;
+        UnityEngine.Vector2 direction = spring.BallB.Position - spring.BallA.Position;
         float currentLength = direction.magnitude;
 
         float stretch = currentLength - spring.NaturalLength;
-        Vector2 force = direction.normalized * stretch * 0.5f; // 0.5f constante de ressort
+        UnityEngine.Vector2 force = direction.normalized * stretch * 0.2f; // 0.5f constante de ressort
 
         spring.BallA.Velocity += force / spring.BallA.Mass;
         spring.BallB.Velocity -= force / spring.BallB.Mass;

@@ -3,9 +3,9 @@ using UnityEngine;
 public class BallView : MonoBehaviour
 {
     private BallModel model;
-    public SpriteRenderer spriteRenderer;
+    private SpriteRenderer spriteRenderer;
 
-    private BallView(BallModel model, SpriteRenderer spriteRenderer)
+    public void Initialize(BallModel model, SpriteRenderer spriteRenderer)
     {
         this.model = model;
         this.spriteRenderer = spriteRenderer;
