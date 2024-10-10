@@ -11,7 +11,7 @@ public class GooController : MonoBehaviour
     [SerializeField] private float springFrequency = 2f;
 
     [SerializeField] private List<Collider2D> hitColliders;
-    [SerializeField] private List<SpringJoint2D> connectedGoos;
+    public List<SpringJoint2D> ConnectedGoos;
     [SerializeField] private List<LineRenderer> lineRenderers;
 
     [SerializeField] private AnimationCurve modelCurve;
@@ -33,7 +33,7 @@ public class GooController : MonoBehaviour
         rb              = GetComponent<Rigidbody2D>();
         spriteRenderer  = GetComponent<SpriteRenderer>();
         lineRenderers   = new();
-        connectedGoos   = GetComponents<SpringJoint2D>().ToList();
+        ConnectedGoos   = GetComponents<SpringJoint2D>().ToList();
 
         originalColor = spriteRenderer.color;
     }
@@ -41,23 +41,6 @@ public class GooController : MonoBehaviour
     private void Update()
     {
         //DetectGoo();
-    }
-
-    private void ApplyPhysics()
-    {
-        // detection d'autre goo (tag - overlapshepere)
-        Vector2 position = transform.position;
-
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(position, springDistance);
-
-        foreach (var collider in hitColliders)
-        {
-            if (collider.CompareTag("Goo"))
-            {
-                /*connections.Add
-                collider.gameObject*/
-            }
-        }
     }
 
 
@@ -72,15 +55,16 @@ public class GooController : MonoBehaviour
         {
             Debug.Log(hitColliders.Count);
 
-            if (other.gameObject != this.gameObject) // Évite de lier à soi-même
+            
+            if (other.gameObject != this.gameObject && other.GetComponent<SpringJoint2D>().connectedBody != this.gameObject) // Évite de lier à soi-même
             {
-                CreateView(transform.position, other.transform.position);
+                //CreateView(transform.position, other.transform.position);
                 //CreateView(other.transform.position, transform.position);
             }
         }
     }
 
-    public void CreateView(Vector2 origin, Vector2 destination)
+    private void CreateView(Vector2 origin, Vector2 destination)
     {
         lineRenderers.Add(gameObject.AddComponent<LineRenderer>());
         float lineWidth = 0.1f;
@@ -88,7 +72,6 @@ public class GooController : MonoBehaviour
         foreach (LineRenderer line in lineRenderers)
         {
             line.material = baseMaterial != null ? baseMaterial : new Material(Shader.Find("Sprites/Default"));
-            // Linerenderer de l'object a l'autre et de l'autre a lui creer dans ce gameobject
 
             if (modelCurve != null)
             {
@@ -96,20 +79,30 @@ public class GooController : MonoBehaviour
             }
             else
             {
-                // Si aucune courbe n'est définie, on garde une largeur constante
                 line.startWidth = lineWidth;
                 line.endWidth = lineWidth;
             }
             line.positionCount = 2;
-            line.SetPosition(0, origin); // Position de cet objet
+            line.SetPosition(0, origin);
             line.SetPosition(1, destination);
         }
     }
 
-    public void AttachTo(GameObject otherGoo)
+    private void AttachTo(GameObject otherGoo)
     {
         if (otherGoo == null) return;
 
+        // other goo 
+        SpringJoint2D jointOtherGoo = otherGoo.AddComponent<SpringJoint2D>();
+        jointOtherGoo.connectedBody = this.rb;
+        jointOtherGoo.autoConfigureDistance = false;
+        jointOtherGoo.distance = springDistance;
+        jointOtherGoo.dampingRatio = springDampingRatio;
+        jointOtherGoo.frequency = springFrequency;
+
+        otherGoo.GetComponent<GooController>().ConnectedGoos.Add(jointOtherGoo);
+
+        // this goo
         SpringJoint2D joint = gameObject.AddComponent<SpringJoint2D>();
         joint.connectedBody = otherGoo.GetComponent<Rigidbody2D>();
         joint.autoConfigureDistance = false;
@@ -117,15 +110,11 @@ public class GooController : MonoBehaviour
         joint.dampingRatio = springDampingRatio;
         joint.frequency = springFrequency;
 
-        connectedGoos.Add(joint);
-
-        //linerenderer 
-
-
+        ConnectedGoos.Add(joint);
         //spriteRenderer.color = connectedColor;
     }
 
-    /*public void Detach(GameObject otherGoo)
+    /*private void Detach(GameObject otherGoo)
     {
         if (otherGoo == null || !connectedGoos.Contains(GetComponent<SpringJoint2D>())) return;
 
@@ -142,23 +131,23 @@ public class GooController : MonoBehaviour
         //spriteRenderer.color = originalColor;
     }*/
 
-    public void DetachAllGoo()
+    private void DetachAllGoo()
     {
-        for (int i = 0; i < connectedGoos.Count;)
+        for (int i = 0; i < ConnectedGoos.Count;)
         {
-            Destroy(connectedGoos[i]);
-            connectedGoos.Remove(connectedGoos[i]);
+            Destroy(ConnectedGoos[i]);
+            ConnectedGoos.Remove(ConnectedGoos[i]);
         }
     }
 
-    public void MouseDragSystem()
+    private void MouseDragSystem()
     {
         Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 smoothedPosition = Vector2.Lerp(transform.position, mousePosition, smoothSpeedGooToMouse);
         transform.position = smoothedPosition;
     }
 
-    public void OnMouseDown()
+    private void OnMouseDown()
     {
         isBeingDragged = true;
         rb.isKinematic = true;
@@ -166,11 +155,17 @@ public class GooController : MonoBehaviour
 
         gameObject.layer = 0 << layerMask.value;
         DetachAllGoo();
+
+        foreach (Collider2D other in hitColliders)
+        {
+            AttachTo(other.gameObject);
+        }
     }
 
     private void OnMouseDrag()
     {
         MouseDragSystem();
+        DetectGoo();
     }
 
     public void OnMouseUp()
