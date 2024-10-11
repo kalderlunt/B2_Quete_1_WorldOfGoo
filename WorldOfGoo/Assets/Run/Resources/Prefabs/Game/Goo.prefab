@@ -163,10 +163,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   springDistance: 2
   springDampingRatio: 0.6
-  springFrequency: 2
+  springFrequency: 4
   hitColliders: []
-  connectedGoos: []
-  lineRenderers: []
+  ConnectedGoos: []
   modelCurve:
     serializedVersion: 2
     m_Curve:

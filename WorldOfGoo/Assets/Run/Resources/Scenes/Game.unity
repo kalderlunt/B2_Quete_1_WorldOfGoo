@@ -131,6 +131,14 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 78867786905826451, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
+      propertyPath: ConnectedGoos.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 78867786905826451, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
+      propertyPath: ConnectedGoos.Array.data[0]
+      value: 
+      objectReference: {fileID: 1294586763}
+    - target: {fileID: 78867786905826451, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
       propertyPath: connectedGoos.Array.data[0]
       value: 
       objectReference: {fileID: 1294586763}
@@ -186,6 +194,18 @@ PrefabInstance:
       propertyPath: m_ConnectedRigidBody
       value: 
       objectReference: {fileID: 1294586760}
+    - target: {fileID: 7113360698076833033, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
+      propertyPath: m_Color.b
+      value: 0.34109113
+      objectReference: {fileID: 0}
+    - target: {fileID: 7113360698076833033, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
+      propertyPath: m_Color.g
+      value: 0.34109113
+      objectReference: {fileID: 0}
+    - target: {fileID: 7113360698076833033, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
+      propertyPath: m_Color.r
+      value: 0.6886792
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -218,13 +238,13 @@ SpringJoint2D:
   m_BreakForce: Infinity
   m_BreakTorque: Infinity
   m_BreakAction: 3
-  m_AutoConfigureConnectedAnchor: 0
+  m_AutoConfigureConnectedAnchor: 1
   m_Anchor: {x: 0, y: 0}
-  m_ConnectedAnchor: {x: 0, y: 0}
+  m_ConnectedAnchor: {x: 2, y: 0}
   m_AutoConfigureDistance: 1
-  m_Distance: 2
-  m_DampingRatio: 0
-  m_Frequency: 1
+  m_Distance: 0.005
+  m_DampingRatio: 0.6
+  m_Frequency: 4
 --- !u!1 &840601871
 GameObject:
   m_ObjectHideFlags: 0
@@ -355,6 +375,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1760752516}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &941796052
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 941796053}
+  m_Layer: 0
+  m_Name: ParentHolderGoos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &941796053
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 941796052}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1294586757 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1222250671287322541, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
@@ -379,13 +430,13 @@ SpringJoint2D:
   m_BreakForce: Infinity
   m_BreakTorque: Infinity
   m_BreakAction: 3
-  m_AutoConfigureConnectedAnchor: 0
+  m_AutoConfigureConnectedAnchor: 1
   m_Anchor: {x: 0, y: 0}
-  m_ConnectedAnchor: {x: 0, y: 0}
+  m_ConnectedAnchor: {x: -2, y: 0}
   m_AutoConfigureDistance: 1
-  m_Distance: 2
-  m_DampingRatio: 0
-  m_Frequency: 1
+  m_Distance: 0.005
+  m_DampingRatio: 0.6
+  m_Frequency: 4
 --- !u!1001 &1296391145
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -399,9 +450,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
     - target: {fileID: 78867786905826451, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
+      propertyPath: ConnectedGoos.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 78867786905826451, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
       propertyPath: connectedGoos.Array.size
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 78867786905826451, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
+      propertyPath: ConnectedGoos.Array.data[0]
+      value: 
+      objectReference: {fileID: 534649522}
     - target: {fileID: 78867786905826451, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
       propertyPath: connectedGoos.Array.data[0]
       value: 
@@ -461,6 +520,18 @@ PrefabInstance:
     - target: {fileID: 6931388963351539059, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
       propertyPath: m_Distance
       value: 3.5608985
+      objectReference: {fileID: 0}
+    - target: {fileID: 7113360698076833033, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
+      propertyPath: m_Color.b
+      value: 0.34109113
+      objectReference: {fileID: 0}
+    - target: {fileID: 7113360698076833033, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
+      propertyPath: m_Color.g
+      value: 0.34109113
+      objectReference: {fileID: 0}
+    - target: {fileID: 7113360698076833033, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
+      propertyPath: m_Color.r
+      value: 0.6886792
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -772,12 +843,12 @@ GameObject:
   - component: {fileID: 1603159454}
   - component: {fileID: 1603159455}
   m_Layer: 0
-  m_Name: GooBuilder
+  m_Name: LevelManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1603159454
 Transform:
   m_ObjectHideFlags: 0
@@ -790,7 +861,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1614864817}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1603159455
@@ -802,13 +874,47 @@ MonoBehaviour:
   m_GameObject: {fileID: 1603159453}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea02926cd75aa5d45b84c6a1db37b32d, type: 3}
+  m_Script: {fileID: 11500000, guid: 0f900b1b922bb654db7e5982b8d9073a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gooPrefab: {fileID: 1222250671287322541, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
-  GooHolder: {fileID: 1494411360}
-  gooCount: 10
-  spacing: 2
+  globalGravity: -9.81
+  prefabGoo: {fileID: 1222250671287322541, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
+  spawnPoint: {fileID: 1614864817}
+  parentHolderGoos: {fileID: 941796053}
+  numberOfInstances: 5
+  scaleDuration: 1
+  waitBetweenInstantiations: 1
+--- !u!1 &1614864816
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1614864817}
+  m_Layer: 0
+  m_Name: SpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1614864817
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1614864816}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -6.28, y: 0.53, z: -0.07282717}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1603159454}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1760752514
 GameObject:
   m_ObjectHideFlags: 0
@@ -1043,6 +1149,14 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 78867786905826451, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
+      propertyPath: springFrequency
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 78867786905826451, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
+      propertyPath: springDampingRatio
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 78867786905826451, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
       propertyPath: modelCurve.m_Curve.Array.size
       value: 2
       objectReference: {fileID: 0}
@@ -1134,3 +1248,4 @@ SceneRoots:
   - {fileID: 452849816453117724}
   - {fileID: 1296391145}
   - {fileID: 534649514}
+  - {fileID: 941796053}
