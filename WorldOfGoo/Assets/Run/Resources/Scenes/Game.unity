@@ -881,7 +881,7 @@ MonoBehaviour:
   prefabGoo: {fileID: 1222250671287322541, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
   spawnPoint: {fileID: 1614864817}
   parentHolderGoos: {fileID: 941796053}
-  numberOfInstances: 5
+  numberOfInstances: 7
   scaleDuration: 1
   waitBetweenInstantiations: 1
 --- !u!1 &1614864816

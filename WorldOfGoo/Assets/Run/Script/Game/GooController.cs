@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -25,6 +26,13 @@ public class GooController : MonoBehaviour
     public float smoothSpeedGooToMouse = 1.0f;
     [SerializeField] private LayerMask layerMask;
 
+
+    [SerializeField] private GameObject previewLinkPrefab;
+    private Dictionary<Collider2D, GameObject> activePreviews = new ();
+    private float duration = 1f;
+    private float elapsedTime = 0f;
+
+
     private void Start()
     {
         rb              = GetComponent<Rigidbody2D>();
@@ -34,11 +42,6 @@ public class GooController : MonoBehaviour
             .ToList();
 
         originalColor = spriteRenderer.color;
-    }
-
-    private void Update()
-    {
-        //DetectGoo();
     }
 
 
@@ -51,40 +54,62 @@ public class GooController : MonoBehaviour
 
         foreach (Collider2D other in hitColliders)
         {
+            // gameobject qui fait un aller retour du transform.position a la other.transform.position avec une duree de 1 sec
             Debug.Log(hitColliders.Count);
+            GameObject previewInstance = Instantiate(previewLinkPrefab, transform.position, Quaternion.identity);
 
-            
-/*            if (other.gameObject != this.gameObject && other.GetComponent<SpringJoint2D>().connectedBody != this.gameObject) // Évite de lier à soi-même
+            if (!activePreviews.Any(other, previewInstance))
+                activePreviews.Add(other, previewInstance);
+            else if (other != null)
             {
-                //CreateView(transform.position, other.transform.position);
-                //CreateView(other.transform.position, transform.position);
-            }*/
+                activePreviews.Remove(other);
+                Destroy(previewInstance);
+            }
+            //RemoveBrokenLinks();
         }
     }
 
-/*    private void CreateView(Vector2 origin, Vector2 destination)
+    private void RemoveBrokenLinks()
     {
-        lineRenderers.Add(gameObject.AddComponent<LineRenderer>());
-        float lineWidth = 0.1f;
+        List<SpringJoint2D> toRemove = new();
 
-        foreach (LineRenderer line in lineRenderers)
+        foreach (var entry in activePreviews)
         {
-            line.material = baseMaterial != null ? baseMaterial : new Material(Shader.Find("Sprites/Default"));
+            var otherGoo = entry.Key;
+            GameObject previewInstance = entry.Value;
 
-            if (modelCurve != null)
+            if (ConnectedGoos.Any(joint => joint.connectedBody == otherGoo.GetComponent<Rigidbody2D>()))
             {
-                line.widthCurve = modelCurve;
+                Destroy(previewInstance);
+                //toRemove.Add(otherGoo);
             }
-            else
-            {
-                line.startWidth = lineWidth;
-                line.endWidth = lineWidth;
-            }
-            line.positionCount = 2;
-            line.SetPosition(0, origin);
-            line.SetPosition(1, destination);
         }
-    }*/
+    }
+
+    private void UpdatePreviewsLink()
+    {
+        foreach (var entry in activePreviews)
+        {
+            //GameObject otherGoo = entry.Key;
+            GameObject previewInstance = entry.Value;
+
+            if (otherGoo != null)
+            {
+                Vector2 origin = transform.position;
+                Vector2 destination = otherGoo.transform.position;
+
+                elapsedTime += Time.deltaTime;
+                float lerpFactor = Mathf.PingPong(elapsedTime / duration, 1.0f);
+
+                previewInstance.transform.position = Vector2.Lerp(origin, destination, lerpFactor);
+
+                if (ConnectedGoos.Any(joint => joint.connectedBody == otherGoo.GetComponent<Rigidbody2D>()))
+                {
+                    Destroy(previewInstance);
+                }
+            }
+        }
+    }
 
     private void AttachTo(GameObject otherGoo)
     {
@@ -220,6 +245,7 @@ public class GooController : MonoBehaviour
         MouseDragSystem();
         DetectGoo();
         DetachAllLink();
+        UpdatePreviewsLink();
     }
 
     public void OnMouseUp()
@@ -233,6 +259,8 @@ public class GooController : MonoBehaviour
         {
             AttachTo(other.gameObject);
         }
+
+        RemoveBrokenLinks();
     }
 
     private void OnMouseEnter()
