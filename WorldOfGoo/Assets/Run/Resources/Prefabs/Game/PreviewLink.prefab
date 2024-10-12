@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7148258705626450005}
   - component: {fileID: 2664403596469374683}
+  - component: {fileID: 9056803334357824571}
   m_Layer: 0
   m_Name: PreviewLink
   m_TagString: Untagged
@@ -84,3 +85,17 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &9056803334357824571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5905158720314797614}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a06962a11d98734fb3d5fddd94d17fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  numberOfJoints: 2
+  amplitude: 0.2

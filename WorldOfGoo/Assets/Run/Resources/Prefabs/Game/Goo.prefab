@@ -162,7 +162,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   springDistance: 2
-  springDampingRatio: 0.6
+  springDampingRatio: 0
   springFrequency: 4
   hitColliders: []
   ConnectedGoos: []
@@ -191,9 +191,9 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   baseMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
-  previewLinkPrefab: {fileID: 5905158720314797614, guid: 80b469c7d065de54e9f4cf0352b10f48, type: 3}
   connectedColor: {r: 0, g: 1, b: 0, a: 1}
   smoothSpeedGooToMouse: 1
   layerMask:
     serializedVersion: 2
     m_Bits: 64
+  previewLinkPrefab: {fileID: 5905158720314797614, guid: 80b469c7d065de54e9f4cf0352b10f48, type: 3}

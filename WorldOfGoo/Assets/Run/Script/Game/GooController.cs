@@ -16,8 +16,8 @@ public class GooController : MonoBehaviour
     [SerializeField] private Material baseMaterial;
 
     private Rigidbody2D rb;
-    private bool isBeingDragged = false;
     private SpriteRenderer spriteRenderer;
+    private bool isBeingDragged = false;
 
     [SerializeField] private Color connectedColor = Color.green;
     private Color originalColor;
@@ -26,11 +26,11 @@ public class GooController : MonoBehaviour
     public float smoothSpeedGooToMouse = 1.0f;
     [SerializeField] private LayerMask layerMask;
 
-
+    private Dictionary<GameObject, GameObject> activePreviews = new ();
     [SerializeField] private GameObject previewLinkPrefab;
-    private Dictionary<Collider2D, GameObject> activePreviews = new ();
-    private float duration = 1f;
-    private float elapsedTime = 0f;
+    
+    private float duration      = 1f;
+    private float elapsedTime   = 0f;
 
 
     private void Start()
@@ -54,58 +54,79 @@ public class GooController : MonoBehaviour
 
         foreach (Collider2D other in hitColliders)
         {
-            // gameobject qui fait un aller retour du transform.position a la other.transform.position avec une duree de 1 sec
-            Debug.Log(hitColliders.Count);
-            GameObject previewInstance = Instantiate(previewLinkPrefab, transform.position, Quaternion.identity);
+            Debug.Log($"Number of collision : {hitColliders.Count}");
+            Debug.Log($"Distance between collisions : {Vector2.Distance(transform.position, other.transform.position)}");
 
-            if (!activePreviews.Any(other, previewInstance))
-                activePreviews.Add(other, previewInstance);
-            else if (other != null)
+            if (other != null && !activePreviews.ContainsKey(other.gameObject))
             {
-                activePreviews.Remove(other);
-                Destroy(previewInstance);
+                GameObject previewInstance = Instantiate(previewLinkPrefab, transform.position, Quaternion.identity);
+
+                VfxLineRenderer vfxLineRenderer = previewInstance.GetComponent<VfxLineRenderer>();
+                GameObject jointA = this.gameObject;
+                GameObject jointB = other.gameObject;
+                vfxLineRenderer.Initialize(jointA, jointB);
+
+                activePreviews.Add(other.gameObject, previewInstance);
             }
-            //RemoveBrokenLinks();
+        }
+
+        foreach (var entry in activePreviews.ToList())
+        {
+            GameObject otherGoo = entry.Key;
+
+            float distance = Vector2.Distance(transform.position, otherGoo.transform.position) - 0.5f;                  //// JE SAIS PAS POURQUOI IL FAUT METTRE - 0.5f////
+            if (distance > springDistance)
+            {
+                RemoveBrokenPreviewLink(otherGoo);
+            }
         }
     }
 
-    private void RemoveBrokenLinks()
+    private void RemoveBrokenPreviewLinks()
     {
-        List<SpringJoint2D> toRemove = new();
+        List<GameObject> toRemove = new List<GameObject>();
 
         foreach (var entry in activePreviews)
         {
-            var otherGoo = entry.Key;
-            GameObject previewInstance = entry.Value;
+            GameObject otherGoo         = entry.Key;
+            GameObject previewInstance  = entry.Value;
 
-            if (ConnectedGoos.Any(joint => joint.connectedBody == otherGoo.GetComponent<Rigidbody2D>()))
+            if (ConnectedGoos.All(joint => joint.connectedBody != otherGoo.GetComponent<Rigidbody2D>()))
             {
                 Destroy(previewInstance);
-                //toRemove.Add(otherGoo);
+                toRemove.Add(otherGoo);
             }
         }
+
+        foreach (var goo in toRemove)
+        {
+            activePreviews.Remove(goo);
+        }
     }
+
+    private void RemoveBrokenPreviewLink(GameObject otherGoo)
+    {
+        if (activePreviews.TryGetValue(otherGoo, out GameObject previewInstance))
+        {
+            Destroy(previewInstance);
+            activePreviews.Remove(otherGoo);
+        }
+    }
+
 
     private void UpdatePreviewsLink()
     {
         foreach (var entry in activePreviews)
         {
-            //GameObject otherGoo = entry.Key;
+            GameObject otherGoo = entry.Key;
             GameObject previewInstance = entry.Value;
 
-            if (otherGoo != null)
+            if (previewInstance != null)
             {
-                Vector2 origin = transform.position;
-                Vector2 destination = otherGoo.transform.position;
-
-                elapsedTime += Time.deltaTime;
-                float lerpFactor = Mathf.PingPong(elapsedTime / duration, 1.0f);
-
-                previewInstance.transform.position = Vector2.Lerp(origin, destination, lerpFactor);
-
-                if (ConnectedGoos.Any(joint => joint.connectedBody == otherGoo.GetComponent<Rigidbody2D>()))
+                VfxLineRenderer vfxLineRenderer = previewInstance.GetComponent<VfxLineRenderer>();
+                if (vfxLineRenderer != null)
                 {
-                    Destroy(previewInstance);
+                    vfxLineRenderer.UpdateLink();
                 }
             }
         }
@@ -260,7 +281,7 @@ public class GooController : MonoBehaviour
             AttachTo(other.gameObject);
         }
 
-        RemoveBrokenLinks();
+        RemoveBrokenPreviewLinks();
     }
 
     private void OnMouseEnter()
