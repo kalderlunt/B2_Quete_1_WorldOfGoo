@@ -49,7 +49,7 @@ public class GooController : MonoBehaviour
     }
 
 
-    private void UpdateLink()
+    private void DetectGoo()
     {
         // detection d'autre goo (tag - overlapshepere)
         Vector2 position = transform.position;
@@ -62,12 +62,22 @@ public class GooController : MonoBehaviour
             Debug.Log($"Number of collision : {hitColliders.Count}");
             Debug.Log($"Distance between collisions : {Vector2.Distance(position, other.transform.position)}");
 
-            if (IsLinked)
+/*            if (IsLinked)
             {
+                if (other != null && !activeLink.ContainsKey(other.gameObject))
+                {
+                    GameObject previewInstance = Instantiate(previewLinkPrefab, position, Quaternion.identity);
 
+                    VfxLineRenderer vfxLineRenderer = previewInstance.GetComponent<VfxLineRenderer>();
+                    GameObject jointA = this.gameObject;
+                    GameObject jointB = other.gameObject;
+                    vfxLineRenderer.Initialize(jointA, jointB);
+
+                    activeLink.Add(other.gameObject, previewInstance);
+                }
             }
             else
-            { 
+            {*/ 
                 if (other != null && !activePreviewslinks.ContainsKey(other.gameObject))
                 {
                     GameObject previewInstance = Instantiate(previewLinkPrefab, position, Quaternion.identity);
@@ -79,7 +89,7 @@ public class GooController : MonoBehaviour
 
                     activePreviewslinks.Add(other.gameObject, previewInstance);
                 }
-            }
+            //}
         }
 
         foreach (var entry in activePreviewslinks.ToList())
@@ -247,10 +257,10 @@ public class GooController : MonoBehaviour
             //Debug.Log($"Le SpringJoint {otherGoo.name} à été détaché avec succès du {this.name}");
         }
 
-        if (ConnectedGoos.Count == 0)
+/*        if (ConnectedGoos.Count == 0)
         {
             isLinked = false;
-        }
+        }*/
     }
 
 
@@ -273,7 +283,7 @@ public class GooController : MonoBehaviour
     private void OnMouseDrag()
     {
         MouseDragSystem();
-        UpdateLink();
+        DetectGoo();
         DetachAllLink();
         UpdatePreviewsLink();
     }
