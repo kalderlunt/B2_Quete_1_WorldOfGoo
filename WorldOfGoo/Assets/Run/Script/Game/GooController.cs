@@ -17,7 +17,6 @@ public class GooController : MonoBehaviour
 
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
-    private bool isBeingDragged = false;
 
     [SerializeField] private Color connectedColor = Color.green;
     private Color originalColor;
@@ -26,9 +25,14 @@ public class GooController : MonoBehaviour
     public float smoothSpeedGooToMouse = 1.0f;
     [SerializeField] private LayerMask layerMask;
 
-    private Dictionary<GameObject, GameObject> activePreviews = new ();
     [SerializeField] private GameObject previewLinkPrefab;
-    
+    [SerializeField] private GameObject previewLink;
+
+    private Dictionary<GameObject, GameObject> activePreviewslinks = new ();
+    private Dictionary<GameObject, GameObject> activeLink           = new ();
+    private bool isLinked = false;
+    public bool IsLinked{ get => IsLinked; }
+
     private float duration      = 1f;
     private float elapsedTime   = 0f;
 
@@ -45,48 +49,63 @@ public class GooController : MonoBehaviour
     }
 
 
-    private void DetectGoo()
+    private void UpdateLink()
     {
         // detection d'autre goo (tag - overlapshepere)
         Vector2 position = transform.position;
 
         hitColliders = Physics2D.OverlapCircleAll(position, springDistance, 1 << LayerMask.NameToLayer("Goo")).ToList();
 
+        
         foreach (Collider2D other in hitColliders)
         {
             Debug.Log($"Number of collision : {hitColliders.Count}");
-            Debug.Log($"Distance between collisions : {Vector2.Distance(transform.position, other.transform.position)}");
+            Debug.Log($"Distance between collisions : {Vector2.Distance(position, other.transform.position)}");
 
-            if (other != null && !activePreviews.ContainsKey(other.gameObject))
+            if (IsLinked)
             {
-                GameObject previewInstance = Instantiate(previewLinkPrefab, transform.position, Quaternion.identity);
 
-                VfxLineRenderer vfxLineRenderer = previewInstance.GetComponent<VfxLineRenderer>();
-                GameObject jointA = this.gameObject;
-                GameObject jointB = other.gameObject;
-                vfxLineRenderer.Initialize(jointA, jointB);
+            }
+            else
+            { 
+                if (other != null && !activePreviewslinks.ContainsKey(other.gameObject))
+                {
+                    GameObject previewInstance = Instantiate(previewLinkPrefab, position, Quaternion.identity);
 
-                activePreviews.Add(other.gameObject, previewInstance);
+                    VfxLineRenderer vfxLineRenderer = previewInstance.GetComponent<VfxLineRenderer>();
+                    GameObject jointA = this.gameObject;
+                    GameObject jointB = other.gameObject;
+                    vfxLineRenderer.Initialize(jointA, jointB);
+
+                    activePreviewslinks.Add(other.gameObject, previewInstance);
+                }
             }
         }
 
-        foreach (var entry in activePreviews.ToList())
+        foreach (var entry in activePreviewslinks.ToList())
         {
             GameObject otherGoo = entry.Key;
 
             float distance = Vector2.Distance(transform.position, otherGoo.transform.position) - 0.5f;                  //// JE SAIS PAS POURQUOI IL FAUT METTRE - 0.5f////
             if (distance > springDistance)
             {
-                RemoveBrokenPreviewLink(otherGoo);
+                RemoveBrokenPreviewLink(otherGoo, activePreviewslinks);
             }
         }
     }
 
-    private void RemoveBrokenPreviewLinks()
+    public Transform ChoiceNextPoint()
+    {
+        int randomIndex = Random.Range(0, ConnectedGoos.Count);
+        return ConnectedGoos[randomIndex].transform;
+    }
+
+
+    private void RemoveBrokenPreviewLinks(Dictionary<GameObject, GameObject> link)
     {
         List<GameObject> toRemove = new List<GameObject>();
 
-        foreach (var entry in activePreviews)
+        foreach (var entry in link)
         {
             GameObject otherGoo         = entry.Key;
             GameObject previewInstance  = entry.Value;
@@ -100,23 +119,23 @@ public class GooController : MonoBehaviour
 
         foreach (var goo in toRemove)
         {
-            activePreviews.Remove(goo);
+            link.Remove(goo);
         }
     }
 
-    private void RemoveBrokenPreviewLink(GameObject otherGoo)
+    private void RemoveBrokenPreviewLink(GameObject otherGoo, Dictionary<GameObject, GameObject> link)
     {
-        if (activePreviews.TryGetValue(otherGoo, out GameObject previewInstance))
+        if (link.TryGetValue(otherGoo, out GameObject previewInstance))
         {
             Destroy(previewInstance);
-            activePreviews.Remove(otherGoo);
+            link.Remove(otherGoo);
         }
     }
 
 
     private void UpdatePreviewsLink()
     {
-        foreach (var entry in activePreviews)
+        foreach (var entry in activePreviewslinks)
         {
             GameObject otherGoo = entry.Key;
             GameObject previewInstance = entry.Value;
@@ -161,21 +180,7 @@ public class GooController : MonoBehaviour
 
 
 
-
-
-
-
-
-
-
-
-
-
         // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA                       REVOIR LES RETURN                  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-
-
-
-
 
 
 
@@ -200,8 +205,8 @@ public class GooController : MonoBehaviour
 
         otherGoo.GetComponent<GooController>().ConnectedGoos.Add(joint);
         ConnectedGoos.Add(jointOtherGoo);
-        
-        
+
+        isLinked = true;
         //spriteRenderer.color = connectedColor;
     }
 
@@ -241,6 +246,11 @@ public class GooController : MonoBehaviour
             }
             //Debug.Log($"Le SpringJoint {otherGoo.name} à été détaché avec succès du {this.name}");
         }
+
+        if (ConnectedGoos.Count == 0)
+        {
+            isLinked = false;
+        }
     }
 
 
@@ -254,7 +264,6 @@ public class GooController : MonoBehaviour
 
     private void OnMouseDown()
     {
-        isBeingDragged  = true;
         rb.isKinematic  = true;
         rb.velocity     = Vector2.zero;
 
@@ -264,14 +273,13 @@ public class GooController : MonoBehaviour
     private void OnMouseDrag()
     {
         MouseDragSystem();
-        DetectGoo();
+        UpdateLink();
         DetachAllLink();
         UpdatePreviewsLink();
     }
 
     public void OnMouseUp()
     {
-        isBeingDragged = false;
         rb.isKinematic = false;
 
         gameObject.layer = 6 << layerMask.value;
@@ -281,7 +289,9 @@ public class GooController : MonoBehaviour
             AttachTo(other.gameObject);
         }
 
-        RemoveBrokenPreviewLinks();
+        RemoveBrokenPreviewLinks(activePreviewslinks);
+
+        isLinked = ConnectedGoos.Count > 0;
     }
 
     private void OnMouseEnter()
