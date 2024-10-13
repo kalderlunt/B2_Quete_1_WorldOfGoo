@@ -6,13 +6,13 @@ public class VfxLineRenderer : MonoBehaviour
 {
     [SerializeField] private int    numberOfJoints  = 2;
     [SerializeField] private float  amplitude       = 0.5f;
+    [SerializeField] private float duration    = 1f;
+    private float elapsedTime = 0f;
 
     private List<GameObject> JointConnected = new();
     private GameObject objJointA;
     private GameObject objJointB;
 
-    private float duration    = 1f;
-    private float elapsedTime = 0f;
 
     public void Initialize(GameObject jointA, GameObject jointB)
     {
