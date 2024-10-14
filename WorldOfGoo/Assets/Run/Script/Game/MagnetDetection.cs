@@ -1,12 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 
 public class MagnetDetection : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed        = 1.0f;
+    /*[SerializeField] private float moveSpeed        = 1.0f;
     [SerializeField] private float springDistance   = 2f;
 
     private List<Collider2D> hitGooColliders;
@@ -65,5 +61,24 @@ public class MagnetDetection : MonoBehaviour
             targetPoint = nextPoint;
             isMoving = true;
         }
+    }*/
+
+    [SerializeField] private float G = Physics2D.gravity.y;
+
+    private float CalculForce(GameObject obj1, GameObject obj2)
+    {
+        float massObj1 = obj1.GetComponent<Rigidbody2D>().mass;
+        float massObb2 = obj2.GetComponent<Rigidbody2D>().mass;
+        float distance = Vector2.Distance(obj2.transform.position, obj1.transform.position);
+
+        float resultat = G * ((massObj1*massObb2) / distance*distance);
+        return resultat;
+
+
+        /*
+        float num = a.x - b.x;
+        float num2 = a.y - b.y;
+        return (float)Math.Sqrt(num * num + num2 * num2);
+        */
     }
 }
