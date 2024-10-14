@@ -198,7 +198,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   previewLinkPrefab: {fileID: 5905158720314797614, guid: 80b469c7d065de54e9f4cf0352b10f48, type: 3}
-  previewLink: {fileID: 0}
+  linkPrefab: {fileID: 5905158720314797614, guid: deb6d0482a5f06749a8eb0955269b0c5, type: 3}
 --- !u!114 &-8402121021879086893
 MonoBehaviour:
   m_ObjectHideFlags: 0

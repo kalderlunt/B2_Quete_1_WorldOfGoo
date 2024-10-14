@@ -26,13 +26,11 @@ public class GooController : MonoBehaviour
     [SerializeField] private LayerMask layerMask;
 
     [SerializeField] private GameObject previewLinkPrefab;
-    [SerializeField] private GameObject previewLink;
+    [SerializeField] private GameObject linkPrefab;
 
     private Dictionary<GameObject, GameObject> activePreviewslinks = new ();
     private Dictionary<GameObject, GameObject> activeLink           = new ();
-    private bool isLinked = false;
-    public bool IsLinked{ get => IsLinked; }
-
+    private bool  isLinked      = false;
     private float duration      = 1f;
     private float elapsedTime   = 0f;
 
@@ -143,7 +141,7 @@ public class GooController : MonoBehaviour
     }
 
 
-    private void UpdatePreviewsLink()
+    private void UpdateLinks()
     {
         foreach (var entry in activePreviewslinks)
         {
@@ -159,27 +157,46 @@ public class GooController : MonoBehaviour
                 }
             }
         }
+
+        // Mise à jour des liens créés
+        foreach (var entry in activeLink)
+        {
+            GameObject otherGoo = entry.Key;
+            GameObject linkInstance = entry.Value;
+
+            if (linkInstance != null)
+            {
+                VfxLineRenderer vfxLineRenderer = linkInstance.GetComponent<VfxLineRenderer>();
+                if (vfxLineRenderer != null)
+                {
+                    vfxLineRenderer.UpdateLink();
+                }
+            }
+        }
     }
 
     private void AttachTo(GameObject otherGoo)
     {
         if (otherGoo == null) return;
 
-/*        if (ConnectedGoos.Any(joint => joint.connectedBody == otherGoo.GetComponent<Rigidbody2D>()))
-        {
-            Debug.Log($"{otherGoo.name} est déjà connecté à l'object {this.name}");
-            return;
-        }
+        /*        if (ConnectedGoos.Any(joint => joint.connectedBody == otherGoo.GetComponent<Rigidbody2D>()))
+                {
+                    Debug.Log($"{otherGoo.name} est déjà connecté à l'object {this.name}");
+                    return;
+                }
 
-        if (otherGoo.GetComponent<GooController>().ConnectedGoos.Any(joint => joint.connectedBody == rb))
-        {
-            Debug.Log($"{this.name} est déjà connecté à l'object {otherGoo.name}");
-            return;
-        }
+                if (otherGoo.GetComponent<GooController>().ConnectedGoos.Any(joint => joint.connectedBody == rb))
+                {
+                    Debug.Log($"{this.name} est déjà connecté à l'object {otherGoo.name}");
+                    return;
+                }
 
-        if (ConnectedGoos.Any(joint => joint.connectedBody.gameObject.GetComponent<SpringJoint2D>()))
+                if (ConnectedGoos.Any(joint => joint.connectedBody.gameObject.GetComponent<SpringJoint2D>()))
+                    return;
+        */
+
+        if (activeLink.ContainsKey(otherGoo) || activeLink.ContainsKey(this.gameObject))
             return;
-*/
 
         if (ConnectedGoos.Any(joint => joint.connectedBody == otherGoo.GetComponent<Rigidbody2D>()))
             return;
@@ -217,7 +234,17 @@ public class GooController : MonoBehaviour
         ConnectedGoos.Add(jointOtherGoo);
 
         isLinked = true;
-        //spriteRenderer.color = connectedColor;
+        if (!activeLink.ContainsKey(otherGoo))
+        {
+            GameObject linkInstance = Instantiate(linkPrefab, transform.position, Quaternion.identity, transform);
+            VfxLineRenderer vfxLineRenderer = linkInstance.GetComponent<VfxLineRenderer>();
+
+            if (vfxLineRenderer != null)
+            {
+                vfxLineRenderer.Initialize(this.gameObject, otherGoo);
+                activeLink.Add(otherGoo, linkInstance);
+            }
+        }
     }
 
     private void DetachAllLink()
@@ -225,6 +252,7 @@ public class GooController : MonoBehaviour
         foreach (var other in hitColliders)
         {
             Detach(other.gameObject);
+            DetachLink(other.gameObject);
         }
     }
 
@@ -256,13 +284,29 @@ public class GooController : MonoBehaviour
             }
             //Debug.Log($"Le SpringJoint {otherGoo.name} à été détaché avec succès du {this.name}");
         }
-
-/*        if (ConnectedGoos.Count == 0)
-        {
-            isLinked = false;
-        }*/
     }
 
+    private void DetachLink(GameObject otherGoo)
+    {
+        if (otherGoo == null) return;
+
+        // Suppression du lien visuel dans les deux sens
+        if (activeLink.ContainsKey(otherGoo))
+        {
+            Destroy(activeLink[otherGoo]);
+            activeLink.Remove(otherGoo);
+        }
+
+        GooController otherController = otherGoo.GetComponent<GooController>();
+        if (otherController.activeLink.ContainsKey(this.gameObject))
+        {
+            Destroy(otherController.activeLink[this.gameObject]);
+            otherController.activeLink.Remove(this.gameObject);
+        }
+
+        isLinked = ConnectedGoos.Count > 0;
+        otherController.isLinked = otherController.ConnectedGoos.Count > 0;
+    }
 
 
     private void MouseDragSystem()
@@ -272,12 +316,15 @@ public class GooController : MonoBehaviour
         transform.position          = smoothedPosition;
     }
 
+
     private void OnMouseDown()
     {
         rb.isKinematic  = true;
         rb.velocity     = Vector2.zero;
 
         gameObject.layer = 0 << layerMask.value;
+
+        DetachAllLink();
     }
 
     private void OnMouseDrag()
@@ -285,7 +332,7 @@ public class GooController : MonoBehaviour
         MouseDragSystem();
         DetectGoo();
         DetachAllLink();
-        UpdatePreviewsLink();
+        UpdateLinks();
     }
 
     public void OnMouseUp()
@@ -301,8 +348,50 @@ public class GooController : MonoBehaviour
 
         RemoveBrokenPreviewLinks(activePreviewslinks);
 
-        isLinked = ConnectedGoos.Count > 0;
+        CreateLinkIfConnected();
     }
+
+    private void CreateLinkIfConnected()
+    {
+        isLinked = ConnectedGoos.Count > 0;
+
+        if (isLinked)
+        {
+            foreach (var otherGoo in hitColliders)
+            {
+                if (!activeLink.ContainsKey(otherGoo.gameObject))
+                {
+                    GameObject linkInstance = Instantiate(linkPrefab, transform.position, Quaternion.identity, otherGoo.gameObject.transform);
+
+                    VfxLineRenderer vfxLineRenderer = linkInstance.GetComponent<VfxLineRenderer>();
+                    if (vfxLineRenderer != null)
+                    {
+                        GameObject jointA = this.gameObject;
+                        GameObject jointB = otherGoo.gameObject;
+                        vfxLineRenderer.Initialize(jointA, jointB);
+
+                        activeLink.Add(otherGoo.gameObject, linkInstance);
+                    }
+                }
+            }
+        }
+    }
+
+    private void Update()
+    {
+        if (activeLink.Count > 0)
+        {
+            foreach (var link in activeLink.Values)
+            {
+                VfxLineRenderer vfxLineRenderer = link.GetComponent<VfxLineRenderer>();
+                if (vfxLineRenderer != null)
+                {
+                    vfxLineRenderer.UpdateLink();
+                }
+            }
+        }
+    }
+
 
     private void OnMouseEnter()
     {

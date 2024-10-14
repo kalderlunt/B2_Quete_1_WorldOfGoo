@@ -50,6 +50,8 @@ public class VfxLineRenderer : MonoBehaviour
             
             transform.position = interpolatedPosition + new Vector2(0, sineOffset);
             elapsedTime += Time.deltaTime;
+            
+            //if (elapsedTime > duration) elapsedTime = 0f;
         }
     }
 }

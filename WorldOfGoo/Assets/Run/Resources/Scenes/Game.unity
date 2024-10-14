@@ -1518,6 +1518,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Goo
       objectReference: {fileID: 0}
+    - target: {fileID: 1222250671287322541, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2291235379847065363, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
