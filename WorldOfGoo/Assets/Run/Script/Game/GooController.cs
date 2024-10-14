@@ -57,8 +57,8 @@ public class GooController : MonoBehaviour
         
         foreach (Collider2D other in hitColliders)
         {
-            Debug.Log($"Number of collision : {hitColliders.Count}");
-            Debug.Log($"Distance between collisions : {Vector2.Distance(position, other.transform.position)}");
+            //Debug.Log($"Number of collision : {hitColliders.Count}");
+            //Debug.Log($"Distance between collisions : {Vector2.Distance(position, other.transform.position)}");
 
 /*            if (IsLinked)
             {
@@ -319,36 +319,47 @@ public class GooController : MonoBehaviour
 
     private void OnMouseDown()
     {
-        rb.isKinematic  = true;
-        rb.velocity     = Vector2.zero;
+        if (tag != "Untouchable")
+        {
+            rb.isKinematic  = true;
+            rb.velocity     = Vector2.zero;
 
-        gameObject.layer = 0 << layerMask.value;
+            gameObject.layer = 0 << layerMask.value;
 
-        DetachAllLink();
+            DetachAllLink();
+        }
     }
 
     private void OnMouseDrag()
     {
-        MouseDragSystem();
-        DetectGoo();
-        DetachAllLink();
-        UpdateLinks();
+        if (tag != "Untouchable")
+        { 
+            MouseDragSystem();
+            DetectGoo();
+            DetachAllLink();
+            UpdateLinks();
+        }
     }
 
     public void OnMouseUp()
     {
-        rb.isKinematic = false;
+        if (tag != "Untouchable")
+        { 
+            rb.isKinematic = false;
 
-        gameObject.layer = 6 << layerMask.value;
 
-        foreach (Collider2D other in hitColliders)
-        {
-            AttachTo(other.gameObject);
+            foreach (Collider2D other in hitColliders)
+            {
+                if (other != null)
+                    gameObject.layer = 6 << layerMask.value;
+                
+                AttachTo(other.gameObject);
+            }
+
+            RemoveBrokenPreviewLinks(activePreviewslinks);
+
+            CreateLinkIfConnected();
         }
-
-        RemoveBrokenPreviewLinks(activePreviewslinks);
-
-        CreateLinkIfConnected();
     }
 
     private void CreateLinkIfConnected()
@@ -395,11 +406,13 @@ public class GooController : MonoBehaviour
 
     private void OnMouseEnter()
     {
-        spriteRenderer.color = connectedColor;
+        if (tag != "Untouchable")
+            spriteRenderer.color = connectedColor;
     }
 
     private void OnMouseExit()
     {
-        spriteRenderer.color = originalColor;
+        if (tag != "Untouchable")
+            spriteRenderer.color = originalColor;
     }
 }
