@@ -16,6 +16,7 @@ public class GooController : MonoBehaviour
     [SerializeField] private Material baseMaterial;
 
     private Rigidbody2D rb;
+    private Collider2D collider;
     private SpriteRenderer spriteRenderer;
 
     [SerializeField] private Color connectedColor = Color.green;
@@ -34,15 +35,22 @@ public class GooController : MonoBehaviour
     private float duration      = 1f;
     private float elapsedTime   = 0f;
 
+    private int indexLayerFixGoo    = 6;
+    private int indexLayerFreeGoo   = 7;
 
-    private void Start()
+    private void Awake()
     {
         rb              = GetComponent<Rigidbody2D>();
+        collider        = GetComponent<Collider2D>();
         spriteRenderer  = GetComponent<SpriteRenderer>();
         ConnectedGoos   = GetComponents<SpringJoint2D>()
             .Select(joint => joint.connectedBody.gameObject.GetComponent<SpringJoint2D>())
             .ToList();
+        
+    }
 
+    private void Start()
+    {
         originalColor = spriteRenderer.color;
     }
 
@@ -52,7 +60,7 @@ public class GooController : MonoBehaviour
         // detection d'autre goo (tag - overlapshepere)
         Vector2 position = transform.position;
 
-        hitColliders = Physics2D.OverlapCircleAll(position, springDistance, 1 << LayerMask.NameToLayer("Goo")).ToList();
+        hitColliders = Physics2D.OverlapCircleAll(position, springDistance, 1 << LayerMask.NameToLayer("FixGoo")).ToList();
 
         
         foreach (Collider2D other in hitColliders)
@@ -218,7 +226,7 @@ public class GooController : MonoBehaviour
         SpringJoint2D jointOtherGoo         = otherGoo.AddComponent<SpringJoint2D>();
         jointOtherGoo.connectedBody         = this.rb;
         jointOtherGoo.autoConfigureDistance = false;
-        jointOtherGoo.distance              = distance;
+        //jointOtherGoo.distance              = distance;
         jointOtherGoo.dampingRatio          = springDampingRatio;
         jointOtherGoo.frequency             = springFrequency;
 
@@ -226,7 +234,7 @@ public class GooController : MonoBehaviour
         SpringJoint2D joint         = gameObject.AddComponent<SpringJoint2D>();
         joint.connectedBody         = otherGoo.GetComponent<Rigidbody2D>();
         joint.autoConfigureDistance = false;
-        joint.distance              = distance;
+        //joint.distance              = distance;
         joint.dampingRatio          = springDampingRatio;
         joint.frequency             = springFrequency;
 
@@ -324,7 +332,7 @@ public class GooController : MonoBehaviour
             rb.isKinematic  = true;
             rb.velocity     = Vector2.zero;
 
-            gameObject.layer = 0 << layerMask.value;
+            gameObject.layer = indexLayerFreeGoo << layerMask.value;
 
             DetachAllLink();
         }
@@ -346,12 +354,12 @@ public class GooController : MonoBehaviour
         if (tag != "Untouchable")
         { 
             rb.isKinematic = false;
-
+            
 
             foreach (Collider2D other in hitColliders)
             {
                 if (other != null)
-                    gameObject.layer = 6 << layerMask.value;
+                    gameObject.layer = indexLayerFixGoo << layerMask.value;
                 
                 AttachTo(other.gameObject);
             }

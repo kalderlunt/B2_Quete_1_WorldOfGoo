@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class EndCondition : MonoBehaviour
 {
-
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Goo"))
+        if (collision.gameObject.layer == LayerMask.NameToLayer("FixGoo"))
         {
+            Rigidbody2D rb = collision.gameObject.GetComponent<Rigidbody2D>();
+            rb.bodyType = RigidbodyType2D.Static;
             Debug.Log("End Level, Ready to Switch next level");
         }
     }
