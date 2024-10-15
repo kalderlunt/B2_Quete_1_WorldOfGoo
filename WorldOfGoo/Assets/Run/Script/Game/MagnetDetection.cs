@@ -63,7 +63,7 @@ public class MagnetDetection : MonoBehaviour
         }
     }*/
 
-    [SerializeField] private float G = Physics2D.gravity.y;
+    [SerializeField] private readonly float G = Physics2D.gravity.y;
 
     private float CalculForce(GameObject obj1, GameObject obj2)
     {

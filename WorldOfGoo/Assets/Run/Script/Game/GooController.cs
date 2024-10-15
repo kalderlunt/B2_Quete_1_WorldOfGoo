@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class GooController : MonoBehaviour
 {
+    public int ID = 0;
+
     [SerializeField] private float springDistance = 2f;
     [SerializeField] private float springDampingRatio = 0.6f;
     [SerializeField] private float springFrequency = 2f;
@@ -16,7 +18,6 @@ public class GooController : MonoBehaviour
     [SerializeField] private Material baseMaterial;
 
     private Rigidbody2D rb;
-    private Collider2D collider;
     private SpriteRenderer spriteRenderer;
 
     [SerializeField] private Color connectedColor = Color.green;
@@ -35,13 +36,12 @@ public class GooController : MonoBehaviour
     private float duration      = 1f;
     private float elapsedTime   = 0f;
 
-    private int indexLayerFixGoo    = 6;
-    private int indexLayerFreeGoo   = 7;
+    private readonly int indexLayerFixGoo    = 6;
+    private readonly int indexLayerFreeGoo   = 7;
 
     private void Awake()
     {
         rb              = GetComponent<Rigidbody2D>();
-        collider        = GetComponent<Collider2D>();
         spriteRenderer  = GetComponent<SpriteRenderer>();
         ConnectedGoos   = GetComponents<SpringJoint2D>()
             .Select(joint => joint.connectedBody.gameObject.GetComponent<SpringJoint2D>())
@@ -324,6 +324,33 @@ public class GooController : MonoBehaviour
         transform.position          = smoothedPosition;
     }
 
+    private void CreateLinkIfConnected()
+    {
+        isLinked = ConnectedGoos.Count > 0;
+
+        if (isLinked)
+        {
+            foreach (var otherGoo in hitColliders)
+            {
+                if (!activeLink.ContainsKey(otherGoo.gameObject))
+                {
+                    GameObject linkInstance = Instantiate(linkPrefab, transform.position, Quaternion.identity, otherGoo.gameObject.transform);
+
+                    VfxLineRenderer vfxLineRenderer = linkInstance.GetComponent<VfxLineRenderer>();
+                    if (vfxLineRenderer != null)
+                    {
+                        GameObject jointA = this.gameObject;
+                        GameObject jointB = otherGoo.gameObject;
+                        vfxLineRenderer.Initialize(jointA, jointB);
+
+                        activeLink.Add(otherGoo.gameObject, linkInstance);
+                    }
+                }
+            }
+        }
+    }
+
+
 
     private void OnMouseDown()
     {
@@ -335,6 +362,9 @@ public class GooController : MonoBehaviour
             gameObject.layer = indexLayerFreeGoo << layerMask.value;
 
             DetachAllLink();
+
+            if (gameObject.TryGetComponent<GooMovement>(out GooMovement gooMovement))
+                Destroy(gooMovement);
         }
     }
 
@@ -370,31 +400,38 @@ public class GooController : MonoBehaviour
         }
     }
 
-    private void CreateLinkIfConnected()
+
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        isLinked = ConnectedGoos.Count > 0;
-
-        if (isLinked)
+        if (gameObject.layer == LayerMask.NameToLayer("FixGoo"))
         {
-            foreach (var otherGoo in hitColliders)
+            if (collision.gameObject.GetComponent<ParticleSystem>() ||
+                collision.gameObject.GetComponent<GooController>())
             {
-                if (!activeLink.ContainsKey(otherGoo.gameObject))
+                if (!collision.gameObject.TryGetComponent<GooMovement>(out _))
                 {
-                    GameObject linkInstance = Instantiate(linkPrefab, transform.position, Quaternion.identity, otherGoo.gameObject.transform);
+                    GooMovement gooMovement = collision.gameObject.AddComponent<GooMovement>();
+                    gooMovement.speed = 2f;
+                    Debug.Log("Combien de fois il passe dedans :");
+                }
 
-                    VfxLineRenderer vfxLineRenderer = linkInstance.GetComponent<VfxLineRenderer>();
-                    if (vfxLineRenderer != null)
-                    {
-                        GameObject jointA = this.gameObject;
-                        GameObject jointB = otherGoo.gameObject;
-                        vfxLineRenderer.Initialize(jointA, jointB);
-
-                        activeLink.Add(otherGoo.gameObject, linkInstance);
-                    }
+                /*if (collision.gameObject.TryGetComponent<GooMovement>(out GooMovement gooMovement))
+                {
+                    gooMovement.enabled = true; 
+                }*/
+            }
+            /*
+             if (collision.gameObject.layer == LayerMask.NameToLayer("FixGoo") || 
+                collision.gameObject.layer == LayerMask.NameToLayer("Link"))
+            {
+                if (!collision.gameObject.TryGetComponent<GooMovement>(out _))
+                {
+                    collision.gameObject.AddComponent<GooMovement>();
                 }
             }
+            */
         }
-    }
+    }   
 
     private void Update()
     {
@@ -410,7 +447,6 @@ public class GooController : MonoBehaviour
             }
         }
     }
-
 
     private void OnMouseEnter()
     {

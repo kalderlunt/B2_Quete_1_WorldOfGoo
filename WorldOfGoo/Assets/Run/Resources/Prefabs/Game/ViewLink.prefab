@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 9056803334357824571}
   - component: {fileID: 1378121131650993144}
   - component: {fileID: 1004851610482968553}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ViewLink
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3690,8 +3690,8 @@ ParticleSystem:
   CollisionModule:
     enabled: 0
     serializedVersion: 4
-    type: 0
-    collisionMode: 0
+    type: 1
+    collisionMode: 1
     colliderForce: 0
     multiplyColliderForceByParticleSize: 0
     multiplyColliderForceByParticleSpeed: 0
@@ -3861,7 +3861,7 @@ ParticleSystem:
     radiusScale: 1
     collidesWith:
       serializedVersion: 2
-      m_Bits: 4294967295
+      m_Bits: 151
     maxCollisionShapes: 256
     quality: 0
     voxelSize: 0.5
@@ -3871,7 +3871,7 @@ ParticleSystem:
   TriggerModule:
     enabled: 0
     serializedVersion: 2
-    inside: 1
+    inside: 0
     outside: 0
     enter: 0
     exit: 0
