@@ -28,7 +28,11 @@ public class GooMovement : MonoBehaviour
     {
         collisionController = collisionObj.GetComponent<GooController>();
         List<SpringJoint2D> connectedGoos = collisionController.ConnectedGoos;
-        currentNode = connectedGoos[Random.Range(0, connectedGoos.Count)].gameObject;
+        
+        if (connectedGoos.Count > 0)
+            currentNode = connectedGoos[Random.Range(0, connectedGoos.Count)].gameObject;
+        else
+            RemoveGooMovementScript();
     }
 
     private void OnEnable()
