@@ -26,6 +26,9 @@ public class GooMovement : MonoBehaviour
 
     private void Start()
     {
+        if (rb.bodyType != RigidbodyType2D.Static)
+            rb.bodyType = RigidbodyType2D.Static;
+
         collisionController = collisionObj.GetComponent<GooController>();
         List<SpringJoint2D> connectedGoos = collisionController.ConnectedGoos;
         
@@ -33,6 +36,16 @@ public class GooMovement : MonoBehaviour
             currentNode = connectedGoos[Random.Range(0, connectedGoos.Count)].gameObject;
         else
             RemoveGooMovementScript();
+    }
+
+    private void OnMouseDown()
+    {
+        rb = originRb;
+        gameObject.layer = originalLayer;
+
+        if (gameObject.TryGetComponent<GooMovement>(out GooMovement gooMovement))
+            Destroy(gooMovement);
+
     }
 
     private void OnEnable()

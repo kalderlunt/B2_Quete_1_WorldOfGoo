@@ -10,7 +10,10 @@ public class EndCondition : MonoBehaviour
         {
             Rigidbody2D rb = collision.gameObject.GetComponent<Rigidbody2D>();
             rb.bodyType = RigidbodyType2D.Static;
+
             Debug.Log("End Level, Ready to Switch next level");
+
+            LevelManager.Instance.LoadNextLevel();
         }
     }
 }

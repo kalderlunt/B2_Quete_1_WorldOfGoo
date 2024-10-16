@@ -369,6 +369,9 @@ public class GooController : MonoBehaviour
 
     private void OnMouseDown()
     {
+        if (gameObject.TryGetComponent<GooMovement>(out GooMovement gooMovement))
+            Destroy(gooMovement);
+
         if (tag != "Untouchable")
         {
             rb.isKinematic  = true;
@@ -378,8 +381,6 @@ public class GooController : MonoBehaviour
 
             DetachAllLink();
 
-            if (gameObject.TryGetComponent<GooMovement>(out GooMovement gooMovement))
-                Destroy(gooMovement);
         }
     }
 
@@ -418,7 +419,7 @@ public class GooController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (gameObject.layer == LayerMask.NameToLayer("FixGoo"))
+        if (gameObject.layer != LayerMask.NameToLayer("FixGoo"))
         {
             if (collision.gameObject.GetComponent<ParticleSystem>() ||
                 collision.gameObject.GetComponent<GooController>())

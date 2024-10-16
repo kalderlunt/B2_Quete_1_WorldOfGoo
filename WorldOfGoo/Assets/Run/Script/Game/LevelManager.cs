@@ -1,10 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
     [SerializeField] private float globalGravity = -9.81f;
+    public static LevelManager Instance { get; private set; }
+
+    [Header("Level")]
+    private int currentLevelIndex;
 
     [Header("Creation de Goo sur le terrain")]
     [SerializeField] private GameObject prefabGoo;
@@ -16,6 +21,18 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private float scaleDuration = 1f;
     [SerializeField] private float waitBetweenInstantiations = 1f;
 
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
 
     private void Start()
     {
@@ -52,5 +69,47 @@ public class LevelManager : MonoBehaviour
             yield return null;
         }
         obj.transform.localScale = targetScale;
+    }
+
+    // ----------------------------------------------------------------------------------------------
+
+
+    public void LoadNextLevel()
+    {
+        currentLevelIndex = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(currentLevelIndex + 1);
+    }
+
+    
+    public void ReloadLevel()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    
+    public void LoadLevel(int levelIndex)
+    {
+        SceneManager.LoadScene(levelIndex);
+    }
+
+    public void LoadLevel(string levelName)
+    {
+        SceneManager.LoadScene($"{levelName}");
+    }
+
+    
+    public void LoadMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
+
+    
+    public void QuitGame()
+    {
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            Application.Quit();
+        #endif
     }
 }
