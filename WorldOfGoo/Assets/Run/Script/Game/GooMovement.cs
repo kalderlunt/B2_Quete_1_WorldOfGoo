@@ -6,9 +6,17 @@ using UnityEngine.AI;
 public class GooMovement : MonoBehaviour
 {
     public float speed = 2f;
-    private Transform currentNode;
+    
+    public  GameObject collisionObj;
+    private GameObject currentNode;
+
+    private GooController collisionController;
+
     private Rigidbody2D rb;
     private Rigidbody2D originRb;
+
+    private int originalLayer;
+    private int newLayer = 9;
 
     private void Awake()
     {
@@ -18,19 +26,23 @@ public class GooMovement : MonoBehaviour
 
     private void Start()
     {
-        GameObject[] listFixGoos = GetAllObjectsInLayer(LayerMask.NameToLayer("FixGoo"));
-        currentNode = listFixGoos[Random.Range(0, listFixGoos.Length)].transform;
-
+        collisionController = collisionObj.GetComponent<GooController>();
+        List<SpringJoint2D> connectedGoos = collisionController.ConnectedGoos;
+        currentNode = connectedGoos[Random.Range(0, connectedGoos.Count)].gameObject;
     }
 
     private void OnEnable()
     {
         rb.bodyType = RigidbodyType2D.Static;
+
+        originalLayer = gameObject.layer;
+        gameObject.layer = newLayer;
     }
 
     private void OnDisable()
     {
         rb = originRb;
+        gameObject.layer = originalLayer;
     }
 
     private void FixedUpdate()
@@ -40,29 +52,31 @@ public class GooMovement : MonoBehaviour
 
     private void MoveToNextBase()
     {
-        transform.position = Vector2.MoveTowards(transform.position, currentNode.position, speed * Time.fixedDeltaTime);
+        collisionController = currentNode.GetComponent<GooController>();
 
-        if (Vector2.Distance(transform.position, currentNode.position) < 0.01f && currentNode.TryGetComponent(out GooController link))
+        if (currentNode == null || collisionController.ConnectedGoos.Count == 0)
+        {
+            RemoveGooMovementScript();
+            return;
+        }
+
+        transform.position = Vector2.MoveTowards(transform.position, currentNode.transform.position, speed * Time.fixedDeltaTime);
+
+        if (Vector2.Distance(transform.position, currentNode.transform.position) < 0.01f && currentNode.TryGetComponent(out GooController link))
         {
             List<SpringJoint2D> listLinks = link.ConnectedGoos;
             if (listLinks.Count > 0)
-                currentNode = listLinks[Random.Range(0, listLinks.Count)].transform;
+                currentNode = listLinks[Random.Range(0, listLinks.Count)].gameObject;
+            else
+                RemoveGooMovementScript();
         }
     }
 
-    private GameObject[] GetAllObjectsInLayer(int layer)
+    private void RemoveGooMovementScript()
     {
-        GameObject[] allObjects = FindObjectsOfType<GameObject>();
-        List<GameObject> objectsInLayer = new();
+        rb.bodyType = RigidbodyType2D.Dynamic;
 
-        foreach (GameObject obj in allObjects)
-        {
-            if (obj.layer == layer)
-            {
-                objectsInLayer.Add(obj);
-            }
-        }
-
-        return objectsInLayer.ToArray();
+        if (TryGetComponent<GooMovement>(out GooMovement gooMovement))
+            Destroy(gooMovement);
     }
 }

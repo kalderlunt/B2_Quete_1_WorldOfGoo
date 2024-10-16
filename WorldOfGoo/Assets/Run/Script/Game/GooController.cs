@@ -427,7 +427,8 @@ public class GooController : MonoBehaviour
                 {
                     GooMovement gooMovement = collision.gameObject.AddComponent<GooMovement>();
                     gooMovement.speed = 2f;
-                    Debug.Log("Combien de fois il passe dedans :");
+                    gooMovement.collisionObj = gameObject;
+                    //Debug.Log("Combien de fois il passe dedans :");
                 }
 
                 /*if (collision.gameObject.TryGetComponent<GooMovement>(out GooMovement gooMovement))

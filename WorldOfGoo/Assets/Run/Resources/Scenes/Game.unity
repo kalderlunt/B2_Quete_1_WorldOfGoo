@@ -130,6 +130,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 307308104184273802, guid: 9e64dc0debc9f8440afeab72fed6b8fd, type: 3}
+      propertyPath: m_ExcludeLayers.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1835718980020690113, guid: 9e64dc0debc9f8440afeab72fed6b8fd, type: 3}
       propertyPath: hitColliders.Array.data[0]
       value: 
@@ -335,7 +339,7 @@ PrefabInstance:
       objectReference: {fileID: 1649078125}
     - target: {fileID: 1835718980020690113, guid: 9e64dc0debc9f8440afeab72fed6b8fd, type: 3}
       propertyPath: hitColliders.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1835718980020690113, guid: 9e64dc0debc9f8440afeab72fed6b8fd, type: 3}
       propertyPath: ConnectedGoos.Array.size
@@ -391,7 +395,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4539921805067472036, guid: 9e64dc0debc9f8440afeab72fed6b8fd, type: 3}
       propertyPath: m_IsTrigger
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5931597681173519877, guid: 9e64dc0debc9f8440afeab72fed6b8fd, type: 3}
       propertyPath: m_Name
@@ -946,7 +950,7 @@ MonoBehaviour:
   prefabGoo: {fileID: 1222250671287322541, guid: 4de1c68e60e80d344abd911b5814f2e7, type: 3}
   spawnPoint: {fileID: 1614864817}
   parentHolderGoos: {fileID: 941796053}
-  numberOfInstances: 25
+  numberOfInstances: 7
   scaleDuration: 1
   waitBetweenInstantiations: 1
 --- !u!1 &1614864816
