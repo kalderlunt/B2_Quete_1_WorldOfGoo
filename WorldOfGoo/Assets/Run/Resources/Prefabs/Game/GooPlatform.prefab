@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 307308104184273802}
   - component: {fileID: 4539921805067472036}
   - component: {fileID: 1835718980020690113}
-  - component: {fileID: 1797978920621651483}
   m_Layer: 6
   m_Name: GooPlatform
   m_TagString: Untouchable
@@ -166,7 +165,8 @@ MonoBehaviour:
   springDistance: 2
   springDampingRatio: 0
   springFrequency: 4
-  hitColliders: []
+  hitColliders:
+  - {fileID: 0}
   ConnectedGoos: []
   modelCurve:
     serializedVersion: 2
@@ -200,24 +200,3 @@ MonoBehaviour:
     m_Bits: 64
   previewLinkPrefab: {fileID: 5905158720314797614, guid: 80b469c7d065de54e9f4cf0352b10f48, type: 3}
   linkPrefab: {fileID: 5905158720314797614, guid: deb6d0482a5f06749a8eb0955269b0c5, type: 3}
---- !u!231 &1797978920621651483
-SpringJoint2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5931597681173519877}
-  m_Enabled: 1
-  serializedVersion: 4
-  m_EnableCollision: 0
-  m_ConnectedRigidBody: {fileID: 0}
-  m_BreakForce: Infinity
-  m_BreakTorque: Infinity
-  m_BreakAction: 3
-  m_AutoConfigureConnectedAnchor: 0
-  m_Anchor: {x: 0, y: 0}
-  m_ConnectedAnchor: {x: 0, y: 0}
-  m_AutoConfigureDistance: 1
-  m_Distance: 4.194866
-  m_DampingRatio: 0
-  m_Frequency: 4

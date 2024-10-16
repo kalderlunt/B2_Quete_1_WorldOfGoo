@@ -52,6 +52,21 @@ public class GooController : MonoBehaviour
     private void Start()
     {
         originalColor = spriteRenderer.color;
+
+        if (hitColliders.Count > 0)
+        {
+            foreach (Collider2D other in hitColliders)
+            {
+                if (other != null)
+                    gameObject.layer = indexLayerFixGoo << layerMask.value;
+
+                AttachTo(other.gameObject);
+            }
+
+            RemoveBrokenPreviewLinks(activePreviewslinks);
+
+            CreateLinkIfConnected();
+        }
     }
 
 
