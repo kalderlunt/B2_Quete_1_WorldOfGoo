@@ -4,8 +4,8 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Goo
   - Untouchable
+  - UnCollide
   layers:
   - Default
   - TransparentFX
@@ -17,7 +17,7 @@ TagManager:
   - FreeGoo
   - Link
   - GooOnMovement
-  - 
+  - FixPlatorm
   - 
   - 
   - 

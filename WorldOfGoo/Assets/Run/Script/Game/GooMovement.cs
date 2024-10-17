@@ -10,56 +10,42 @@ public class GooMovement : MonoBehaviour
     public  GameObject collisionObj;
     private GameObject currentNode;
 
+    private GooController ourController;
     private GooController collisionController;
 
     private Rigidbody2D rb;
-    private Rigidbody2D originRb;
 
-    private int originalLayer;
-    private int newLayer = 9;
+    private int FixGooLayer        = 6;
+    private int FreeGooLayer       = 7;
+    private int GooOnMovement      = 9;
+    private int FixPlatormLayer    = 10;
 
     private void Awake()
     {
-        rb          = GetComponent<Rigidbody2D>();
-        originRb    = rb;
+        rb = GetComponent<Rigidbody2D>();
     }
 
     private void Start()
     {
         if (rb.bodyType != RigidbodyType2D.Static)
             rb.bodyType = RigidbodyType2D.Static;
+        
+        gameObject.layer = GooOnMovement;
 
+        ourController       = GetComponent<GooController>(); 
         collisionController = collisionObj.GetComponent<GooController>();
+
         List<SpringJoint2D> connectedGoos = collisionController.ConnectedGoos;
         
         if (connectedGoos.Count > 0)
-            currentNode = connectedGoos[Random.Range(0, connectedGoos.Count)].gameObject;
+            currentNode = connectedGoos[0].connectedBody.gameObject;
         else
-            RemoveGooMovementScript();
+            ourController.RemoveGooMovementScript();
     }
 
     private void OnMouseDown()
     {
-        rb = originRb;
-        gameObject.layer = originalLayer;
-
-        if (gameObject.TryGetComponent<GooMovement>(out GooMovement gooMovement))
-            Destroy(gooMovement);
-
-    }
-
-    private void OnEnable()
-    {
-        rb.bodyType = RigidbodyType2D.Static;
-
-        originalLayer = gameObject.layer;
-        gameObject.layer = newLayer;
-    }
-
-    private void OnDisable()
-    {
-        rb = originRb;
-        gameObject.layer = originalLayer;
+        ourController.RemoveGooMovementScript();
     }
 
     private void FixedUpdate()
@@ -73,7 +59,7 @@ public class GooMovement : MonoBehaviour
 
         if (currentNode == null || collisionController.ConnectedGoos.Count == 0)
         {
-            RemoveGooMovementScript();
+            ourController.RemoveGooMovementScript();
             return;
         }
 
@@ -85,15 +71,7 @@ public class GooMovement : MonoBehaviour
             if (listLinks.Count > 0)
                 currentNode = listLinks[Random.Range(0, listLinks.Count)].gameObject;
             else
-                RemoveGooMovementScript();
+                ourController.RemoveGooMovementScript();
         }
-    }
-
-    private void RemoveGooMovementScript()
-    {
-        rb.bodyType = RigidbodyType2D.Dynamic;
-
-        if (TryGetComponent<GooMovement>(out GooMovement gooMovement))
-            Destroy(gooMovement);
     }
 }

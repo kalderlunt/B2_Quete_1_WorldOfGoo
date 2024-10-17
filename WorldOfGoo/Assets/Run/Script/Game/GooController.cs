@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.Tilemaps;
 using UnityEngine;
 
 public class GooController : MonoBehaviour
@@ -25,19 +26,22 @@ public class GooController : MonoBehaviour
 
 
     public float smoothSpeedGooToMouse = 1.0f;
-    [SerializeField] private LayerMask layerMask;
 
     [SerializeField] private GameObject previewLinkPrefab;
     [SerializeField] private GameObject linkPrefab;
 
     private Dictionary<GameObject, GameObject> activePreviewslinks = new ();
     private Dictionary<GameObject, GameObject> activeLink           = new ();
-    private bool  isLinked      = false;
     private float duration      = 1f;
     private float elapsedTime   = 0f;
 
-    private readonly int indexLayerFixGoo    = 6;
-    private readonly int indexLayerFreeGoo   = 7;
+    private int FixGooLayer        = 6;
+    private int FreeGooLayer       = 7;
+    private int GooOnMovement      = 9;
+    private int FixPlatormLayer    = 10;
+
+    private bool isLinked   = false;
+    private bool isClicked  = false;
 
     private void Awake()
     {
@@ -58,7 +62,7 @@ public class GooController : MonoBehaviour
             foreach (Collider2D other in hitColliders)
             {
                 if (other != null)
-                    gameObject.layer = indexLayerFixGoo << layerMask.value;
+                    gameObject.layer = FixPlatormLayer;
 
                 AttachTo(other.gameObject);
             }
@@ -75,7 +79,8 @@ public class GooController : MonoBehaviour
         // detection d'autre goo (tag - overlapshepere)
         Vector2 position = transform.position;
 
-        hitColliders = Physics2D.OverlapCircleAll(position, springDistance, 1 << LayerMask.NameToLayer("FixGoo")).ToList();
+        hitColliders = Physics2D.OverlapCircleAll(position, springDistance, 1 << FixPlatormLayer | 1 << FixGooLayer).ToList();
+
 
         
         foreach (Collider2D other in hitColliders)
@@ -124,13 +129,6 @@ public class GooController : MonoBehaviour
             }
         }
     }
-
-    public Transform ChoiceNextPoint()
-    {
-        int randomIndex = Random.Range(0, ConnectedGoos.Count);
-        return ConnectedGoos[randomIndex].transform;
-    }
-
 
     private void RemoveBrokenPreviewLinks(Dictionary<GameObject, GameObject> link)
     {
@@ -283,7 +281,7 @@ public class GooController : MonoBehaviour
     {
         //if (otherGoo == null) return;
 
-        // this intantiate to delete othter
+        // this intantiate to delete other
         SpringJoint2D[] otherSpringsInThisGoo = otherGoo.GetComponents<SpringJoint2D>();
         foreach (SpringJoint2D otherJoint in otherSpringsInThisGoo)
         {
@@ -291,6 +289,8 @@ public class GooController : MonoBehaviour
             {
                 Destroy(otherJoint);
                 ConnectedGoos.Remove(otherJoint);
+                if (tag != "Untouchable")
+                    rb.bodyType = RigidbodyType2D.Dynamic;
             }
             //Debug.Log($"Le SpringJoint {this.name} à été détaché avec succès du {otherGoo.name}");
         }
@@ -304,8 +304,13 @@ public class GooController : MonoBehaviour
             {
                 Destroy(thisJoint);
                 otherGoo.GetComponent<GooController>().ConnectedGoos.Remove(thisJoint);
+                
+                if (otherGoo.tag != "Untouchable")
+                    otherGoo.GetComponent<GooController>().rb.bodyType = RigidbodyType2D.Dynamic;
             }
             //Debug.Log($"Le SpringJoint {otherGoo.name} à été détaché avec succès du {this.name}");
+            
+            //ConnectedGoos.RemoveAll(joint => joint == null || joint.connectedBody == null);
         }
     }
 
@@ -329,6 +334,9 @@ public class GooController : MonoBehaviour
 
         isLinked = ConnectedGoos.Count > 0;
         otherController.isLinked = otherController.ConnectedGoos.Count > 0;
+
+        if (otherController.tag != "Untouchable")
+            otherController.rb.bodyType = RigidbodyType2D.Dynamic;
     }
 
 
@@ -369,66 +377,82 @@ public class GooController : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (gameObject.TryGetComponent<GooMovement>(out GooMovement gooMovement))
-            Destroy(gooMovement);
+        if (tag == "Untouchable") return;
 
-        if (tag != "Untouchable")
-        {
-            rb.isKinematic  = true;
+
+
+        RemoveGooMovementScript();
+        isClicked = true;
+        rb.isKinematic  = true;
+        if (rb.bodyType != RigidbodyType2D.Static)
             rb.velocity     = Vector2.zero;
 
-            gameObject.layer = indexLayerFreeGoo << layerMask.value;
 
-            DetachAllLink();
+        gameObject.layer = FreeGooLayer;
 
-        }
+        DetachAllLink();
     }
 
     private void OnMouseDrag()
     {
-        if (tag != "Untouchable")
-        { 
-            MouseDragSystem();
-            DetectGoo();
-            DetachAllLink();
-            UpdateLinks();
-        }
+        if (tag == "Untouchable") return;
+        
+        if (rb.bodyType != RigidbodyType2D.Static)
+            rb.velocity = Vector2.zero;
+
+        DetachAllLink();
+        MouseDragSystem();
+        DetectGoo();
+        UpdateLinks();
     }
 
     public void OnMouseUp()
     {
-        if (tag != "Untouchable")
-        { 
-            rb.isKinematic = false;
+
+        if (tag == "Untouchable") return;
+
+        RemoveGooMovementScript();
+
+        isClicked = false;
+        rb.isKinematic = false;
+        if (rb.bodyType != RigidbodyType2D.Static)
+            rb.velocity     = Vector2.zero;
             
 
-            foreach (Collider2D other in hitColliders)
-            {
-                if (other != null)
-                    gameObject.layer = indexLayerFixGoo << layerMask.value;
+        foreach (Collider2D other in hitColliders)
+        {
+            if (other != null)
+                gameObject.layer = FixGooLayer;
                 
-                AttachTo(other.gameObject);
-            }
-
-            RemoveBrokenPreviewLinks(activePreviewslinks);
-
-            CreateLinkIfConnected();
+            AttachTo(other.gameObject);
         }
+
+        RemoveBrokenPreviewLinks(activePreviewslinks);
+
+        CreateLinkIfConnected();
     }
 
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (gameObject.layer != LayerMask.NameToLayer("FixGoo"))
+
+        if (isClicked)
+            return;
+        
+        if (collision.gameObject.layer == gameObject.layer)
+            return;
+
+
+        if (collision.gameObject.layer == FixPlatormLayer || collision.gameObject.layer == FixGooLayer)
         {
             if (collision.gameObject.GetComponent<ParticleSystem>() ||
                 collision.gameObject.GetComponent<GooController>())
             {
-                if (!collision.gameObject.TryGetComponent<GooMovement>(out _))
+                if (!gameObject.TryGetComponent<GooMovement>(out _))
                 {
-                    GooMovement gooMovement = collision.gameObject.AddComponent<GooMovement>();
+                    GooMovement gooMovement = gameObject.AddComponent<GooMovement>();
                     gooMovement.speed = 2f;
-                    gooMovement.collisionObj = gameObject;
+                    gooMovement.collisionObj = collision.gameObject;
                     //Debug.Log("Combien de fois il passe dedans :");
                 }
 
@@ -475,5 +499,19 @@ public class GooController : MonoBehaviour
     {
         if (tag != "Untouchable")
             spriteRenderer.color = originalColor;
+    }
+
+
+    public void RemoveGooMovementScript()
+    {
+        rb.bodyType = RigidbodyType2D.Dynamic;
+        gameObject.layer = FreeGooLayer;
+
+
+        if (TryGetComponent<GooMovement>(out GooMovement gooMovement))
+        {
+            rb.bodyType = RigidbodyType2D.Static;
+            Destroy(gooMovement);
+        }
     }
 }

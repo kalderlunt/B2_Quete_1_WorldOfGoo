@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 307308104184273802}
   - component: {fileID: 4539921805067472036}
   - component: {fileID: 1835718980020690113}
-  m_Layer: 6
+  m_Layer: 10
   m_Name: GooPlatform
   m_TagString: Untouchable
   m_Icon: {fileID: 0}
@@ -195,8 +195,5 @@ MonoBehaviour:
   baseMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   connectedColor: {r: 0, g: 1, b: 0, a: 1}
   smoothSpeedGooToMouse: 1
-  layerMask:
-    serializedVersion: 2
-    m_Bits: 64
   previewLinkPrefab: {fileID: 5905158720314797614, guid: 80b469c7d065de54e9f4cf0352b10f48, type: 3}
   linkPrefab: {fileID: 5905158720314797614, guid: deb6d0482a5f06749a8eb0955269b0c5, type: 3}
