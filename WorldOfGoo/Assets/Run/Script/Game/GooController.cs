@@ -1,14 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor.Tilemaps;
 using UnityEngine;
 
 public class GooController : MonoBehaviour
 {
-    public int ID = 0;
+    public static int IdGeneral = 0;
+    public int Id = 0;
 
-    [SerializeField] private float springDistance = 2f;
+    [SerializeField] private float springMaxDistance = 2f;
+    [SerializeField] private float springMinDistance = 2f;
     [SerializeField] private float springDampingRatio = 0.6f;
     [SerializeField] private float springFrequency = 2f;
 
@@ -79,7 +82,7 @@ public class GooController : MonoBehaviour
         // detection d'autre goo (tag - overlapshepere)
         Vector2 position = transform.position;
 
-        hitColliders = Physics2D.OverlapCircleAll(position, springDistance, 1 << FixPlatormLayer | 1 << FixGooLayer).ToList();
+        hitColliders = Physics2D.OverlapCircleAll(position, springMaxDistance, 1 << FixPlatormLayer | 1 << FixGooLayer).ToList();
 
 
         
@@ -88,42 +91,25 @@ public class GooController : MonoBehaviour
             //Debug.Log($"Number of collision : {hitColliders.Count}");
             //Debug.Log($"Distance between collisions : {Vector2.Distance(position, other.transform.position)}");
 
-/*            if (IsLinked)
+            if (other != null && !activePreviewslinks.ContainsKey(other.gameObject))
             {
-                if (other != null && !activeLink.ContainsKey(other.gameObject))
-                {
-                    GameObject previewInstance = Instantiate(previewLinkPrefab, position, Quaternion.identity);
+                GameObject previewInstance = Instantiate(previewLinkPrefab, position, Quaternion.identity);
 
-                    VfxLineRenderer vfxLineRenderer = previewInstance.GetComponent<VfxLineRenderer>();
-                    GameObject jointA = this.gameObject;
-                    GameObject jointB = other.gameObject;
-                    vfxLineRenderer.Initialize(jointA, jointB);
+                VfxLineRenderer vfxLineRenderer = previewInstance.GetComponent<VfxLineRenderer>();
+                GameObject jointA = this.gameObject;
+                GameObject jointB = other.gameObject;
+                vfxLineRenderer.Initialize(jointA, jointB);
 
-                    activeLink.Add(other.gameObject, previewInstance);
-                }
+                activePreviewslinks.Add(other.gameObject, previewInstance);
             }
-            else
-            {*/ 
-                if (other != null && !activePreviewslinks.ContainsKey(other.gameObject))
-                {
-                    GameObject previewInstance = Instantiate(previewLinkPrefab, position, Quaternion.identity);
-
-                    VfxLineRenderer vfxLineRenderer = previewInstance.GetComponent<VfxLineRenderer>();
-                    GameObject jointA = this.gameObject;
-                    GameObject jointB = other.gameObject;
-                    vfxLineRenderer.Initialize(jointA, jointB);
-
-                    activePreviewslinks.Add(other.gameObject, previewInstance);
-                }
-            //}
         }
 
         foreach (var entry in activePreviewslinks.ToList())
         {
             GameObject otherGoo = entry.Key;
 
-            float distance = Vector2.Distance(transform.position, otherGoo.transform.position) - 0.5f;                  //// JE SAIS PAS POURQUOI IL FAUT METTRE - 0.5f////
-            if (distance > springDistance)
+            float distance = Vector2.Distance(transform.position, otherGoo.transform.position) - 0.5f;                  //// JE SAIS PAS POURQUOI IL FAUT METTRE - 0.5f  Nombre Magique du radius de la balle    ////
+            if (distance > springMaxDistance)
             {
                 RemoveBrokenPreviewLink(otherGoo, activePreviewslinks);
             }
@@ -380,14 +366,13 @@ public class GooController : MonoBehaviour
         if (tag == "Untouchable") return;
 
 
-
         RemoveGooMovementScript();
         isClicked = true;
         rb.isKinematic  = true;
         if (rb.bodyType != RigidbodyType2D.Static)
             rb.velocity     = Vector2.zero;
 
-
+        Id = 0;
         gameObject.layer = FreeGooLayer;
 
         DetachAllLink();
@@ -423,13 +408,21 @@ public class GooController : MonoBehaviour
         {
             if (other != null)
                 gameObject.layer = FixGooLayer;
-                
+
             AttachTo(other.gameObject);
         }
 
         RemoveBrokenPreviewLinks(activePreviewslinks);
 
         CreateLinkIfConnected();
+
+        AssignId();
+    }
+
+    public void AssignId()
+    {
+        IdGeneral++;
+        Id = IdGeneral;
     }
 
 

@@ -7,16 +7,14 @@ public class GooMovement : MonoBehaviour
 {
     public float speed = 2f;
     
-    public GameObject CollisionObj;
-
-    [SerializeField] private GameObject lastNode;
-    [SerializeField] private GameObject nextNode;
+    [HideInInspector] public GameObject CollisionObj;
+    private GameObject lastNode;
+    private GameObject nextNode;
 
     private GooController ourController;
     private GooController lastController;
 
     private Rigidbody2D rb;
-
     private int GooOnMovement      = 9;
 
     private void Awake()
@@ -40,6 +38,13 @@ public class GooMovement : MonoBehaviour
             nextNode = connectedGoos[0].connectedBody.gameObject;
         else
             ourController.RemoveGooMovementScript();
+
+        GameManager.Instance.GooOnMovements.Add(this.gameObject);
+    }
+
+    private void OnDisable()
+    {
+        GameManager.Instance.GooOnMovements.Remove(this.gameObject);
     }
 
     private void OnMouseDown()
