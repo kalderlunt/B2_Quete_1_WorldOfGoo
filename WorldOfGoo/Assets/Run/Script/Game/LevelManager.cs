@@ -1,10 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
     [SerializeField] private float globalGravity = -9.81f;
+    public static LevelManager Instance { get; private set; }
+
+    [Header("Level")]
+    private int currentLevelIndex;
 
     [Header("Creation de Goo sur le terrain")]
     [SerializeField] private GameObject prefabGoo;
@@ -17,7 +22,19 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private float waitBetweenInstantiations = 1f;
 
 
-    private void Start()
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    private void OnEnable()
     {
         if (Physics2D.gravity != new Vector2(0, globalGravity))
             Physics2D.gravity = new Vector2(0, globalGravity);
