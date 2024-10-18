@@ -239,6 +239,8 @@ public class GooController : MonoBehaviour
 
         otherGoo.GetComponent<GooController>().ConnectedGoos.Add(joint);
         ConnectedGoos.Add(jointOtherGoo);
+        GameManager.Instance.GooPlaced.Remove(gameObject);
+
 
         isLinked = true;
         if (!activeLink.ContainsKey(otherGoo))
@@ -325,7 +327,6 @@ public class GooController : MonoBehaviour
             otherController.rb.bodyType = RigidbodyType2D.Dynamic;
     }
 
-
     private void MouseDragSystem()
     {
         Vector2 mousePosition       = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -360,7 +361,6 @@ public class GooController : MonoBehaviour
     }
 
 
-
     private void OnMouseDown()
     {
         if (tag == "Untouchable") return;
@@ -374,6 +374,7 @@ public class GooController : MonoBehaviour
 
         Id = 0;
         gameObject.layer = FreeGooLayer;
+        GameManager.Instance.GooPlaced.Remove(gameObject);
 
         DetachAllLink();
     }

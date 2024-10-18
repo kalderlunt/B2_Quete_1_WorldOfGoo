@@ -6,7 +6,8 @@ using UnityEngine.AI;
 public class GooMovement : MonoBehaviour
 {
     public float speed = 2f;
-    
+    [SerializeField] private float speedEndLevel = 4f;
+
     [HideInInspector] public GameObject CollisionObj;
     private GameObject lastNode;
     private GameObject nextNode;
@@ -54,7 +55,10 @@ public class GooMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        MoveToNextBase();
+        if (!GameManager.Instance.EndLevel)
+            MoveToNextBase();
+        else 
+            PastFindingEndLevel();
     }
 
     private void MoveToNextBase()
@@ -106,4 +110,93 @@ public class GooMovement : MonoBehaviour
             }
         }
     }
+
+
+
+    private void PastFindingEndLevel()
+    {
+        if (rb.bodyType != RigidbodyType2D.Kinematic)
+            rb.bodyType = RigidbodyType2D.Kinematic;
+
+        nextNode = FindHighestIDGoo();
+
+        if (nextNode != null)
+            transform.position = Vector2.MoveTowards(transform.position, nextNode.transform.position, speedEndLevel * Time.fixedDeltaTime);
+    }
+
+
+    private GameObject FindHighestIDGoo()
+    {
+        GameObject highestIDGoo = nextNode;
+        int highestID = -1;
+
+        if (Vector2.Distance(transform.position, nextNode.transform.position) < 0.01f && nextNode.TryGetComponent(out GooController link))
+        {
+            lastNode = nextNode;
+
+            int currentID = link.Id;
+            if (currentID > highestID)
+            {
+                highestID = currentID;
+                highestIDGoo = nextNode;
+            }
+
+            List<SpringJoint2D> nextLinks = link.ConnectedGoos;
+
+            if (nextLinks.Count > 0)
+            {
+                foreach (SpringJoint2D springLink in nextLinks)
+                {
+                    GameObject connectedGoo = springLink.gameObject;
+                    int connectedID = connectedGoo.GetComponent<GooController>().Id;
+
+                    if (connectedID > highestID)
+                    {
+                        highestID = connectedID;
+                        highestIDGoo = connectedGoo;
+                    }
+                }
+            }
+        }
+
+        return highestIDGoo;
+    }
+
+    /*private GameObject FindHighestIDGoo()
+    {
+        GameObject highestIDGoo = null;
+        int highestID = -1;
+
+
+        int gooID = goo.GetComponent<GooController>().Id;
+
+        if (gooID > highestID)
+        {
+            highestID    = gooID;
+            highestIDGoo = goo;
+        }
+
+        if (Vector2.Distance(transform.position, nextNode.transform.position) < 0.01f && nextNode.TryGetComponent(out GooController link))
+        {
+            List<SpringJoint2D> nextLinks = link.ConnectedGoos;
+
+
+            foreach (SpringJoint2D springLink in nextLinks)
+            {
+                lastNode     = nextNode;
+                highestIDGoo = nextNode;
+
+                int idTemp = springLink.GetComponent<GooController>().Id;
+
+                if (idTemp > highestID)
+                {
+                    highestID = idTemp;
+                }
+            }
+
+            return highestIDGoo;
+        }
+
+        return null;
+    }*/
 }

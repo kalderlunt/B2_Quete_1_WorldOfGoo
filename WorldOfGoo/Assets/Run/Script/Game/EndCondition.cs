@@ -5,15 +5,20 @@ using UnityEngine;
 public class EndCondition : MonoBehaviour
 {
     private void OnTriggerStay2D(Collider2D collision)
-    {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("FixGoo"))
+    {   
+        if (collision.gameObject.layer == LayerMask.NameToLayer("FixGoo") && !GameManager.Instance.EndLevel)
         {
             Rigidbody2D rb = collision.gameObject.GetComponent<Rigidbody2D>();
             rb.bodyType = RigidbodyType2D.Static;
 
-            Debug.Log("End Level, Ready to Switch next level");
+            //LevelManager.Instance.LoadNextLevel();
+            GameManager.Instance.LevelFinished();
+        }
 
-            LevelManager.Instance.LoadNextLevel();
+        if (collision.gameObject.layer == LayerMask.NameToLayer("GooOnMovement") && GameManager.Instance.EndLevel)
+        {
+            Destroy(collision.gameObject);
+            //Debug.Log($"GooOnMovement Destroy ?  {collision.gameObject} ");
         }
     }
 }
