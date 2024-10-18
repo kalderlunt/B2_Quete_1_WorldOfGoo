@@ -439,7 +439,11 @@ public class GooController : MonoBehaviour
         if (isClicked)
             return;
         
-        if (collision.gameObject.layer == gameObject.layer)
+        if (collision.gameObject.layer      == gameObject.layer 
+            || gameObject.layer             == FixPlatormLayer 
+            && collision.gameObject.layer   == FixGooLayer 
+            || gameObject.layer             == FixGooLayer
+            && collision.gameObject.layer   == FixPlatormLayer)
             return;
 
 
@@ -452,7 +456,7 @@ public class GooController : MonoBehaviour
                 {
                     GooMovement gooMovement = gameObject.AddComponent<GooMovement>();
                     gooMovement.speed = 2f;
-                    gooMovement.collisionObj = collision.gameObject;
+                    gooMovement.CollisionObj = collision.gameObject;
                     //Debug.Log("Combien de fois il passe dedans :");
                 }
 
@@ -504,13 +508,12 @@ public class GooController : MonoBehaviour
 
     public void RemoveGooMovementScript()
     {
-        rb.bodyType = RigidbodyType2D.Dynamic;
         gameObject.layer = FreeGooLayer;
 
 
         if (TryGetComponent<GooMovement>(out GooMovement gooMovement))
         {
-            rb.bodyType = RigidbodyType2D.Static;
+            rb.bodyType = RigidbodyType2D.Dynamic;
             Destroy(gooMovement);
         }
     }
