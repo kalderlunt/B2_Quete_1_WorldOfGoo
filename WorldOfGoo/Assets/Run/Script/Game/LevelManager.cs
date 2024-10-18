@@ -1,7 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
@@ -31,7 +29,6 @@ public class LevelManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
     }
 
     private void OnEnable()
@@ -39,7 +36,7 @@ public class LevelManager : MonoBehaviour
         if (Physics2D.gravity != new Vector2(0, globalGravity))
             Physics2D.gravity = new Vector2(0, globalGravity);
 
-
+        GameManager.Instance.IsEndLevel = false;
         StartCoroutine(InstantiatePrefabs());
     }
 
