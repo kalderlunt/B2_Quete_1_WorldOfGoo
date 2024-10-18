@@ -6,7 +6,7 @@ public class EndCondition : MonoBehaviour
 {
     private void OnTriggerStay2D(Collider2D collision)
     {   
-        if (collision.gameObject.layer == LayerMask.NameToLayer("FixGoo") && !GameManager.Instance.EndLevel)
+        if (collision.gameObject.layer == LayerMask.NameToLayer("FixGoo") && !GameManager.Instance.IsEndLevel)
         {
             Rigidbody2D rb = collision.gameObject.GetComponent<Rigidbody2D>();
             rb.bodyType = RigidbodyType2D.Static;
@@ -15,7 +15,7 @@ public class EndCondition : MonoBehaviour
             GameManager.Instance.LevelFinished();
         }
 
-        if (collision.gameObject.layer == LayerMask.NameToLayer("GooOnMovement") && GameManager.Instance.EndLevel)
+        if (collision.gameObject.layer == LayerMask.NameToLayer("GooOnMovement") && GameManager.Instance.IsEndLevel)
         {
             Destroy(collision.gameObject);
             //Debug.Log($"GooOnMovement Destroy ?  {collision.gameObject} ");

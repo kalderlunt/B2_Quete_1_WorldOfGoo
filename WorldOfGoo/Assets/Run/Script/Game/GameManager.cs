@@ -2,14 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Tilemaps;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    public List<GameObject> GooOnMovements = new();
-    public List<GameObject> GooPlaced      = new();
-    public bool EndLevel = false;
+    public List<GameObject> GooOnMovements  = new();
+    public List<GameObject> GooPlaced       = new();
+    public List<GameObject> AllGoos         = new();
+    public bool IsEndLevel = false;
 
 
     private void Awake()
@@ -25,11 +27,12 @@ public class GameManager : MonoBehaviour
 
     public void LevelFinished()
     {
-        if (EndLevel)
+        if (IsEndLevel)
             return;
 
-        EndLevel = true;
+        IsEndLevel = true;
 
+        
         foreach (GameObject goo in GooOnMovements)
         {
             goo.tag = "Untouchable";
@@ -40,8 +43,8 @@ public class GameManager : MonoBehaviour
         {
             goo.tag = "Untouchable";
         }
-
-
+        
+        AllGoos.Clear();
         StartCoroutine(CoroutineEndLevel());
     }
 
@@ -51,6 +54,48 @@ public class GameManager : MonoBehaviour
         {
             yield return null;
         }
-        LevelManager.Instance.LoadNextLevel();
+        LoadNextLevel();
+    }
+
+    // ----------------------------------------------------------------------------------------------
+
+
+    public void LoadNextLevel()
+    {
+        int currentLevelIndex = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(currentLevelIndex + 1);
+    }
+
+
+    public void ReloadLevel()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+
+    public void LoadLevel(int levelIndex)
+    {
+        SceneManager.LoadScene(levelIndex);
+    }
+
+    public void LoadLevel(string levelName)
+    {
+        SceneManager.LoadScene($"{levelName}");
+    }
+
+
+    public void LoadMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
+
+
+    public void QuitGame()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
     }
 }

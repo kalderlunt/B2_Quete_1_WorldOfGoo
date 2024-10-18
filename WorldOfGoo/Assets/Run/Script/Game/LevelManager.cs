@@ -34,7 +34,7 @@ public class LevelManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    private void Start()
+    private void OnEnable()
     {
         if (Physics2D.gravity != new Vector2(0, globalGravity))
             Physics2D.gravity = new Vector2(0, globalGravity);
@@ -69,47 +69,5 @@ public class LevelManager : MonoBehaviour
             yield return null;
         }
         obj.transform.localScale = targetScale;
-    }
-
-    // ----------------------------------------------------------------------------------------------
-
-
-    public void LoadNextLevel()
-    {
-        currentLevelIndex = SceneManager.GetActiveScene().buildIndex;
-        SceneManager.LoadScene(currentLevelIndex + 1);
-    }
-
-    
-    public void ReloadLevel()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
-
-    
-    public void LoadLevel(int levelIndex)
-    {
-        SceneManager.LoadScene(levelIndex);
-    }
-
-    public void LoadLevel(string levelName)
-    {
-        SceneManager.LoadScene($"{levelName}");
-    }
-
-    
-    public void LoadMainMenu()
-    {
-        SceneManager.LoadScene("MainMenu");
-    }
-
-    
-    public void QuitGame()
-    {
-        #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-        #else
-            Application.Quit();
-        #endif
     }
 }

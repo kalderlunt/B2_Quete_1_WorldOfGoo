@@ -9,6 +9,8 @@ public class GooController : MonoBehaviour
 {
     public static int IdGeneral = 0;
     public int Id = 0;
+    
+    private const float G = 0.1f;
 
     [SerializeField] private float springMaxDistance = 2f;
     [SerializeField] private float springMinDistance = 2f;
@@ -34,13 +36,13 @@ public class GooController : MonoBehaviour
     [SerializeField] private GameObject linkPrefab;
 
     private Dictionary<GameObject, GameObject> activePreviewslinks = new ();
-    private Dictionary<GameObject, GameObject> activeLink           = new ();
+    private Dictionary<GameObject, GameObject> activeLink          = new ();
     private float duration      = 1f;
     private float elapsedTime   = 0f;
 
     private int FixGooLayer        = 6;
     private int FreeGooLayer       = 7;
-    private int GooOnMovement      = 9;
+    private int GooOnMovementLayer = 9;
     private int FixPlatormLayer    = 10;
 
     private bool isLinked   = false;
@@ -59,6 +61,8 @@ public class GooController : MonoBehaviour
     private void Start()
     {
         originalColor = spriteRenderer.color;
+
+        GameManager.Instance.AllGoos.Add(gameObject);
 
         if (hitColliders.Count > 0)
         {
@@ -426,7 +430,6 @@ public class GooController : MonoBehaviour
         Id = IdGeneral;
     }
 
-
     private void OnCollisionEnter2D(Collision2D collision)
     {
 
@@ -510,5 +513,36 @@ public class GooController : MonoBehaviour
             rb.bodyType = RigidbodyType2D.Dynamic;
             Destroy(gooMovement);
         }
+    }
+
+    private void FixedUpdate()
+    {
+        if (!GameManager.Instance.IsEndLevel && gameObject.layer != GooOnMovementLayer)
+                ApplyGravitationalForces();
+    }
+
+    private void ApplyGravitationalForces()
+    {
+        Vector2 totalForce = Vector2.zero;
+
+        foreach (GameObject otherGoo in GameManager.Instance.AllGoos)
+        {
+            if (otherGoo.layer != GooOnMovementLayer)
+            {
+                Vector2 direction = otherGoo.transform.position - transform.position;
+                float distance = direction.magnitude;
+
+                if (distance > 0f)
+                {
+                    float mass1 = rb.mass;
+                    float mass2 = otherGoo.GetComponent<Rigidbody2D>().mass;
+                    float forceMagnitude = G * (mass1 * mass2) / Mathf.Pow(distance, 2);
+
+                    totalForce += direction.normalized * forceMagnitude;
+                }
+            }
+        }
+
+        rb.AddForce(totalForce);
     }
 }

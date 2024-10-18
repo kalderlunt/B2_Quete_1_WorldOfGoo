@@ -6,7 +6,7 @@ using UnityEngine.AI;
 public class GooMovement : MonoBehaviour
 {
     public float speed = 2f;
-    [SerializeField] private float speedEndLevel = 4f;
+    [SerializeField] private float speedEndLevel = 3f;
 
     [HideInInspector] public GameObject CollisionObj;
     private GameObject lastNode;
@@ -55,7 +55,7 @@ public class GooMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!GameManager.Instance.EndLevel)
+        if (!GameManager.Instance.IsEndLevel)
             MoveToNextBase();
         else 
             PastFindingEndLevel();
